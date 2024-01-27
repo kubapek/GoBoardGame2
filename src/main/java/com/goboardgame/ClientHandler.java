@@ -7,19 +7,28 @@ import java.net.Socket;
 
 public class ClientHandler implements Runnable {
     private Socket clientSocket;
-    private GoGame goGame;
     private GoGameServer goGameServer;
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
 
-    public ClientHandler(Socket clientSocket, GoGame goGame, GoGameServer goGameServer) {
+    public ClientHandler(Socket clientSocket, GoGameServer goGameServer) {
         this.clientSocket = clientSocket;
-        this.goGame = goGame;
         this.goGameServer = goGameServer;
 
         try {
             this.outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
             this.inputStream = new ObjectInputStream(clientSocket.getInputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        sendInitialGameData();
+    }
+
+    private void sendInitialGameData() {
+        try {
+            GameData initialGameData = new GameData(goGameServer.getGoGame());
+            outputStream.writeObject(initialGameData);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -29,13 +38,13 @@ public class ClientHandler implements Runnable {
     public void run() {
         try {
             while (true) {
-                // Odbieranie danych od klienta
+                // Receiving data from the client
                 Object receivedData = inputStream.readObject();
-
-                // Implementuj odpowiednie operacje na goGame w zależności od odebranych danych
+                System.out.println(receivedData);
+                // Implement the appropriate operations on the server's game logic
                 if (receivedData instanceof MoveData) {
                     MoveData moveData = (MoveData) receivedData;
-                    handleMove(moveData);
+                    goGameServer.handleMove(moveData);
                 }
             }
         } catch (IOException | ClassNotFoundException e) {
@@ -45,15 +54,5 @@ public class ClientHandler implements Runnable {
 
     public void sendGameData(GameData gameData) throws IOException {
         outputStream.writeObject(gameData);
-    }
-
-    private void handleMove(MoveData moveData) {
-        int x = moveData.getX();
-        int y = moveData.getY();
-
-        if (goGame.placeStone(x, y)) {
-            GameData updatedGameData = new GameData(goGame);
-            goGameServer.broadcastGameData(updatedGameData);
-        }
     }
 }
