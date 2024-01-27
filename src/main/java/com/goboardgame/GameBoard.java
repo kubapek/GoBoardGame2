@@ -5,58 +5,99 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 
-import java.net.Socket;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 
-public class GameBoard {
-    private static final int TILE_SIZE = 40;
-    private static final int INTERACTION_RADIUS = 10; // Promień punktu interakcyjnego
+public class GameBoard extends Pane {
+    public static final int TILE_SIZE = 40;
     private GoGame goGame;
-    private Pane root;
+    private ObjectOutputStream toServer;
+    private Main main;
 
-    private Socket socket;
-
-    public GameBoard(GoGame goGame, Socket socket) {
+    public GameBoard(GoGame goGame, ObjectOutputStream toServer, Main main) {
         this.goGame = goGame;
-        this.root = new Pane();
-        this.socket = socket;
+        this.toServer = toServer;
+        this.main = main;
     }
 
     public Pane createContent() {
-        root.setPrefSize((goGame.getBoardSize() - 1) * TILE_SIZE, (goGame.getBoardSize() - 1) * TILE_SIZE);
+        setPrefSize((goGame.getBoardSize() - 1) * TILE_SIZE, (goGame.getBoardSize() - 1) * TILE_SIZE);
 
-        // Draw grid lines
         for (int i = 0; i < goGame.getBoardSize(); i++) {
             Line hLine = new Line(0, i * TILE_SIZE, (goGame.getBoardSize() - 1) * TILE_SIZE, i * TILE_SIZE);
             Line vLine = new Line(i * TILE_SIZE, 0, i * TILE_SIZE, (goGame.getBoardSize() - 1) * TILE_SIZE);
-            root.getChildren().addAll(hLine, vLine);
+            getChildren().addAll(hLine, vLine);
         }
 
-        // Add interaction points
         for (int y = 0; y < goGame.getBoardSize(); y++) {
             for (int x = 0; x < goGame.getBoardSize(); x++) {
-                final int finalX = x;
-                final int finalY = y;
+                Circle interactionPoint = new Circle(TILE_SIZE / 2 - 2, Color.TRANSPARENT);
+                interactionPoint.setCenterX(x * TILE_SIZE);
+                interactionPoint.setCenterY(y * TILE_SIZE);
 
-                Circle interactionPoint = new Circle(INTERACTION_RADIUS, Color.TRANSPARENT);
-                interactionPoint.setCenterX(finalX * TILE_SIZE);
-                interactionPoint.setCenterY(finalY * TILE_SIZE);
-                interactionPoint.setOnMouseClicked(e -> placeStone(finalX, finalY, root));
+                int finalX = x;
+                int finalY = y;
+                interactionPoint.setOnMouseClicked(e -> handleStonePlacement(finalX, finalY));
 
-                root.getChildren().add(interactionPoint);
+                getChildren().add(interactionPoint);
             }
         }
 
-        return root;
+        return this;
     }
 
-    private void placeStone(int x, int y, Pane root) {
-        if (goGame.placeStone(x, y)) {
-            Stone stone = new Stone(goGame.getCurrentPlayer(), x, y);
-            Circle circle = new Circle(TILE_SIZE / 2 - 2);
-            circle.setFill(stone.getColor() == Stone.StoneColor.BLACK ? Color.BLACK : Color.WHITE);
-            circle.setCenterX(x * TILE_SIZE);
-            circle.setCenterY(y * TILE_SIZE);
-            root.getChildren().add(circle);
+    private void handleStonePlacement(int x, int y) {
+        System.out.println("Kliknięcie myszą na pozycji x=" + x + ", y=" + y);
+        sendMoveToServer(x, y);
+    }
+
+    private void sendMoveToServer(int x, int y) {
+        try {
+            MoveData moveData = new MoveData(x, y);
+            toServer.writeObject(moveData);
+            toServer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public void updateGameBoard() {
+        getChildren().clear();
+
+        for (int i = 0; i < goGame.getBoardSize(); i++) {
+            Line hLine = new Line(0, i * TILE_SIZE, (goGame.getBoardSize() - 1) * TILE_SIZE, i * TILE_SIZE);
+            Line vLine = new Line(i * TILE_SIZE, 0, i * TILE_SIZE, (goGame.getBoardSize() - 1) * TILE_SIZE);
+            getChildren().addAll(hLine, vLine);
+        }
+
+        for (int y = 0; y < goGame.getBoardSize(); y++) {
+            for (int x = 0; x < goGame.getBoardSize(); x++) {
+                if (goGame.getBoard()[x][y] != null) {
+                    Stone stone = goGame.getBoard()[x][y];
+                    Circle circle = new Circle(TILE_SIZE / 2 - 2);
+                    circle.setFill(stone.getColor() == Stone.StoneColor.BLACK ? Color.BLACK : Color.WHITE);
+                    circle.setCenterX(x * TILE_SIZE);
+                    circle.setCenterY(y * TILE_SIZE);
+                    getChildren().add(circle);
+                }
+            }
+        }
+    }
+
+    public void highlightSelectedStone(Stone.StoneColor selectedStoneColor) {
+        if (selectedStoneColor == Stone.StoneColor.BLACK) {
+            Circle selectedStone = new Circle(TILE_SIZE / 2 - 2);
+            selectedStone.setFill(Color.BLACK);
+            selectedStone.setCenterX(700); //
+            selectedStone.setCenterY(700); //
+            getChildren().add(selectedStone);
+        } else {
+            Circle selectedStone = new Circle(TILE_SIZE / 2 - 2);
+            selectedStone.setFill(Color.WHITE);
+            selectedStone.setCenterX(700);
+            selectedStone.setCenterY(700);
+            getChildren().add(selectedStone);
         }
     }
 }

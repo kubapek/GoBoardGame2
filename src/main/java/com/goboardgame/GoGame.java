@@ -14,16 +14,16 @@ public class GoGame implements Serializable {
     public GoGame(int boardSize) {
         this.boardSize = boardSize;
         this.board = new Stone[boardSize][boardSize];
-        this.currentPlayer = Stone.StoneColor.BLACK; // Black starts first
+        this.currentPlayer = Stone.StoneColor.BLACK;
         blackStones = new HashSet<>();
         whiteStones = new HashSet<>();
     }
 
-    public boolean placeStone(int x, int y) {
+    public boolean placeStone(int x, int y, Stone.StoneColor color) {
         if (isValidMove(x, y)) {
-            Stone newStone = new Stone(currentPlayer, x, y);
+            Stone newStone = new Stone(color, x, y);
             board[x][y] = newStone;
-            if (currentPlayer == Stone.StoneColor.BLACK) {
+            if (color == Stone.StoneColor.BLACK) {
                 blackStones.add(new Point(x, y));
             } else {
                 whiteStones.add(new Point(x, y));
@@ -100,12 +100,12 @@ public class GoGame implements Serializable {
 
     private boolean isValidMove(int x, int y) {
         if (x < 0 || x >= boardSize || y < 0 || y >= boardSize) {
-            return false; // Out of bounds
+            return false;
         }
-        return board[x][y] == null; // Valid if the spot is empty
+        return board[x][y] == null;
     }
 
-    private void togglePlayer() {
+    public void togglePlayer() {
         currentPlayer = (currentPlayer == Stone.StoneColor.BLACK) ? Stone.StoneColor.WHITE : Stone.StoneColor.BLACK;
     }
 
