@@ -10,6 +10,7 @@ public class GoGame implements Serializable {
     private Stone.StoneColor currentPlayer;
     private Set<Point> blackStones;
     private Set<Point> whiteStones;
+    private int playersCount = 0;
 
     public GoGame(int boardSize) {
         this.boardSize = boardSize;
@@ -28,75 +29,75 @@ public class GoGame implements Serializable {
             } else {
                 whiteStones.add(new Point(x, y));
             }
-            removeCapturedStones(x, y);
+//            removeCapturedStones(x, y);
             togglePlayer();
             return true;
         }
         return false;
     }
 
-    private void removeCapturedStones(int x, int y) {
-        for (int[] direction : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
-            int adjacentX = x + direction[0];
-            int adjacentY = y + direction[1];
-            if (isOnBoard(adjacentX, adjacentY) && board[adjacentX][adjacentY] != null
-                    && board[adjacentX][adjacentY].getColor() != currentPlayer) {
-                if (!hasLiberties(adjacentX, adjacentY)) {
-                    removeGroup(adjacentX, adjacentY);
-                }
-            }
-        }
-    }
-
-    private boolean hasLiberties(int x, int y) {
-        Stone.StoneColor color = board[x][y].getColor();
-        Set<Point> stonesToCheck = (color == Stone.StoneColor.BLACK) ? blackStones : whiteStones;
-
-        for (Point stone : stonesToCheck) {
-            if (isAdjacent(x, y, stone.x, stone.y) && isLiberty(stone.x, stone.y)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private boolean isAdjacent(int x1, int y1, int x2, int y2) {
-        return Math.abs(x1 - x2) + Math.abs(y1 - y2) == 1;
-    }
-
-    private boolean isLiberty(int x, int y) {
-        for (int[] direction : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
-            int adjacentX = x + direction[0];
-            int adjacentY = y + direction[1];
-            if (isOnBoard(adjacentX, adjacentY) && board[adjacentX][adjacentY] == null) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private void removeGroup(int x, int y) {
-        Stone.StoneColor color = board[x][y].getColor();
-        Set<Point> stonesToRemove = (color == Stone.StoneColor.BLACK) ? blackStones : whiteStones;
-
-        removeGroupRecursive(x, y, color, stonesToRemove);
-    }
-
-    private void removeGroupRecursive(int x, int y, Stone.StoneColor color, Set<Point> stonesToRemove) {
-        if (!isOnBoard(x, y) || board[x][y] == null || board[x][y].getColor() != color) {
-            return;
-        }
-
-        board[x][y] = null;
-        stonesToRemove.remove(new Point(x, y));
-
-        for (int[] direction : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
-            int adjacentX = x + direction[0];
-            int adjacentY = y + direction[1];
-            removeGroupRecursive(adjacentX, adjacentY, color, stonesToRemove);
-        }
-    }
+//    private void removeCapturedStones(int x, int y) {
+//        for (int[] direction : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
+//            int adjacentX = x + direction[0];
+//            int adjacentY = y + direction[1];
+//            if (isOnBoard(adjacentX, adjacentY) && board[adjacentX][adjacentY] != null
+//                    && board[adjacentX][adjacentY].getColor() != currentPlayer) {
+//                if (!hasLiberties(adjacentX, adjacentY)) {
+//                    removeGroup(adjacentX, adjacentY);
+//                }
+//            }
+//        }
+//    }
+//
+//    private boolean hasLiberties(int x, int y) {
+//        Stone.StoneColor color = board[x][y].getColor();
+//        Set<Point> stonesToCheck = (color == Stone.StoneColor.BLACK) ? blackStones : whiteStones;
+//
+//        for (Point stone : stonesToCheck) {
+//            if (isAdjacent(x, y, stone.x, stone.y) && isLiberty(stone.x, stone.y)) {
+//                return true;
+//            }
+//        }
+//
+//        return false;
+//    }
+//
+//    private boolean isAdjacent(int x1, int y1, int x2, int y2) {
+//        return Math.abs(x1 - x2) + Math.abs(y1 - y2) == 1;
+//    }
+//
+//    private boolean isLiberty(int x, int y) {
+//        for (int[] direction : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
+//            int adjacentX = x + direction[0];
+//            int adjacentY = y + direction[1];
+//            if (isOnBoard(adjacentX, adjacentY) && board[adjacentX][adjacentY] == null) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
+//
+//    private void removeGroup(int x, int y) {
+//        Stone.StoneColor color = board[x][y].getColor();
+//        Set<Point> stonesToRemove = (color == Stone.StoneColor.BLACK) ? blackStones : whiteStones;
+//
+//        removeGroupRecursive(x, y, color, stonesToRemove);
+//    }
+//
+//    private void removeGroupRecursive(int x, int y, Stone.StoneColor color, Set<Point> stonesToRemove) {
+//        if (!isOnBoard(x, y) || board[x][y] == null || board[x][y].getColor() != color) {
+//            return;
+//        }
+//
+//        board[x][y] = null;
+//        stonesToRemove.remove(new Point(x, y));
+//
+//        for (int[] direction : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
+//            int adjacentX = x + direction[0];
+//            int adjacentY = y + direction[1];
+//            removeGroupRecursive(adjacentX, adjacentY, color, stonesToRemove);
+//        }
+//    }
 
     private boolean isValidMove(int x, int y) {
         if (x < 0 || x >= boardSize || y < 0 || y >= boardSize) {
@@ -124,9 +125,25 @@ public class GoGame implements Serializable {
     public Stone.StoneColor getCurrentPlayer() {
         return currentPlayer;
     }
+
+    public int getPlayersCount() {
+        return playersCount;
+    }
+
+    public void incrementPlayersCount() {
+        playersCount += 1;
+    }
+
+    public Set<Point> getBlackStones() {
+        return blackStones;
+    }
+
+    public Set<Point> getWhiteStones() {
+        return whiteStones;
+    }
 }
 
-class Point {
+class Point implements Serializable {
     int x, y;
 
     Point(int x, int y) {
@@ -150,5 +167,13 @@ class Point {
         int result = x;
         result = 31 * result + y;
         return result;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
     }
 }

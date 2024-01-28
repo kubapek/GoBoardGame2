@@ -1,6 +1,8 @@
 package com.goboardgame;
 
-public class Stone {
+import java.io.Serializable;
+
+public class Stone implements Serializable {
     private final StoneColor color;
     private final int x;
     private final int y;
@@ -25,5 +27,14 @@ public class Stone {
 
     public enum StoneColor {
         BLACK, WHITE
+    }
+
+    @Override
+    public String toString() {
+        return "Stone{" +
+                "color=" + color +
+                ", x=" + x +
+                ", y=" + y +
+                '}';
     }
 }

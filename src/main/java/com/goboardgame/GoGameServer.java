@@ -43,10 +43,24 @@ public class GoGameServer {
         int y = moveData.getY();
         Stone.StoneColor currentPlayer = goGame.getCurrentPlayer();
 
+
         if (goGame.placeStone(x, y, currentPlayer)) {
             System.out.println("Player " + currentPlayer + " placed a stone at position x=" + x + ", y=" + y);
+            System.out.println(goGame);
+            // Dodatkowe logowanie stanu gry
+            logGameState();
+
             GameData updatedGameData = new GameData(goGame);
-            broadcastGameData(updatedGameData, sender);
+            broadcastGameData(updatedGameData);
+        }
+    }
+
+    private void logGameState() {
+        for (Stone[] stones : getGoGame().getBoard()) {
+            for(int i = 0; i < stones.length; i++) {
+                if (stones[i] != null)
+                    System.out.println(stones[i]);
+            }
         }
     }
 
@@ -65,19 +79,17 @@ public class GoGameServer {
         clients.remove(clientHandler);
     }
 
-    private void broadcastGameData(GameData gameData, ClientHandler excludeClient) {
-        synchronized (clients) {
-            for (ClientHandler client : clients) {
-                if (client != excludeClient) {
-                    try {
-                        client.sendGameData(gameData);
-                    } catch (IOException e) {
-                        System.out.println("Error sending data to a client: " + e.getMessage());
-                        clients.remove(client);
-                    }
-                }
+    private void broadcastGameData(GameData gameData) {
+        for (ClientHandler client : clients) {
+            try {
+//                System.out.println("Sending game data to client: " + client);
+                client.sendGameData(gameData);
+            } catch (IOException e) {
+//                System.out.println("Error sending data to client " + client + ": " + e.getMessage());
+                // reszta kodu...
             }
         }
     }
+
 
 }
