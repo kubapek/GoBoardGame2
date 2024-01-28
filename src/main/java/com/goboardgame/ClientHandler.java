@@ -68,4 +68,7 @@ public class ClientHandler implements Runnable {
         outputStream.reset();
     }
 
+    public Stone.StoneColor getPlayerColor() {
+        return playerColor;
+    }
 }

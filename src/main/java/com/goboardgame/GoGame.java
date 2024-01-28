@@ -29,12 +29,26 @@ public class GoGame implements Serializable {
             } else {
                 whiteStones.add(new Point(x, y));
             }
+
+            boolean isSuicidal = !hasLiberties(x, y);
             removeCapturedStones(x, y);
+
+            if (isSuicidal && !hasLiberties(x, y)) {
+                board[x][y] = null;
+                if (color == Stone.StoneColor.BLACK) {
+                    blackStones.remove(new Point(x, y));
+                } else {
+                    whiteStones.remove(new Point(x, y));
+                }
+                return false;
+            }
+
             togglePlayer();
             return true;
         }
         return false;
     }
+
 
     private void removeCapturedStones(int x, int y) {
         for (int[] direction : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
@@ -70,6 +84,23 @@ public class GoGame implements Serializable {
             findGroupRecursive(adjacentX, adjacentY, color, group);
         }
     }
+
+    private boolean hasLiberties(int x, int y) {
+        if (!isOnBoard(x, y) || board[x][y] == null) {
+            return false;
+        }
+
+        for (int[] direction : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
+            int adjacentX = x + direction[0];
+            int adjacentY = y + direction[1];
+            if (isOnBoard(adjacentX, adjacentY) && board[adjacentX][adjacentY] == null) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 
     private boolean hasLiberties(Set<Point> group) {
         for (Point stone : group) {

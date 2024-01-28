@@ -43,15 +43,16 @@ public class GoGameServer {
         int y = moveData.getY();
         Stone.StoneColor currentPlayer = goGame.getCurrentPlayer();
 
+        if (sender.getPlayerColor() == currentPlayer) {
+            if (goGame.placeStone(x, y, currentPlayer)) {
+                System.out.println("Player " + currentPlayer + " placed a stone at position x=" + x + ", y=" + y);
+                System.out.println(goGame);
+                // Dodatkowe logowanie stanu gry
+                logGameState();
 
-        if (goGame.placeStone(x, y, currentPlayer)) {
-            System.out.println("Player " + currentPlayer + " placed a stone at position x=" + x + ", y=" + y);
-            System.out.println(goGame);
-            // Dodatkowe logowanie stanu gry
-            logGameState();
-
-            GameData updatedGameData = new GameData(goGame);
-            broadcastGameData(updatedGameData);
+                GameData updatedGameData = new GameData(goGame);
+                broadcastGameData(updatedGameData);
+            }
         }
     }
 
