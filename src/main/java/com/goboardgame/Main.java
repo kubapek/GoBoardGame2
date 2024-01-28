@@ -79,8 +79,8 @@ public class Main extends Application {
         gameBoard = new GameBoard(goGame, toServer, this);
 
         VBox scoreBoard = new VBox();
-        Label player1ScoreLabel = new Label("Gracz 1: " /*+ goGame.getPlayer1Score()*/);
-        Label player2ScoreLabel = new Label("Gracz 2: " /*+ goGame.getPlayer2Score()*/);
+        Label player1ScoreLabel = new Label("Gracz 1: " + goGame.getPlayer1Score());
+        Label player2ScoreLabel = new Label("Gracz 2: " + goGame.getPlayer2Score());
         scoreBoard.getChildren().addAll(player1ScoreLabel, player2ScoreLabel);
 
         Button resignButton = new Button("Zrezygnuj");
