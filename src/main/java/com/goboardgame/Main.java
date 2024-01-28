@@ -3,8 +3,15 @@ package com.goboardgame;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.geometry.Pos;
+import javafx.scene.control.Button;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
 import java.io.*;
 import java.net.Socket;
@@ -68,13 +75,34 @@ public class Main extends Application {
     }
 
 
-
-
     private void createGameUI(Stage primaryStage, GoGame goGame) {
         gameBoard = new GameBoard(goGame, toServer, this);
-        StackPane root = new StackPane();
-        root.getChildren().add(gameBoard.createContent());
-        Scene scene = new Scene(root, 760, 760);
+
+        // Tablica wyników graczy
+        VBox scoreBoard = new VBox();
+        // Przykładowe etykiety dla wyników graczy
+        Label player1ScoreLabel = new Label("Gracz 1: " /*+ goGame.getPlayer1Score()*/);
+        Label player2ScoreLabel = new Label("Gracz 2: " /*+ goGame.getPlayer2Score()*/);
+        scoreBoard.getChildren().addAll(player1ScoreLabel, player2ScoreLabel);
+
+        // Przycisk zrezygnuj
+        Button resignButton = new Button("Zrezygnuj");
+        resignButton.setOnAction(e -> {
+            // Tutaj dodaj kod obsługi rezygnacji
+            // Na przykład, możesz wywołać metodę, która obsługuje rezygnację gracza
+        });
+
+        // Kontener po prawej stronie z wynikami i przyciskiem
+        HBox rightPane = new HBox(10);
+        rightPane.getChildren().addAll(scoreBoard, resignButton);
+        rightPane.setAlignment(Pos.CENTER_LEFT);
+
+        // Korzystamy z BorderPane, aby umieścić planszę na środku, a wyniki i przyciski po prawej stronie
+        BorderPane root = new BorderPane();
+        root.setCenter(gameBoard.createContent());
+        root.setLeft(rightPane);
+
+        Scene scene = new Scene(root, 960, 760);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
@@ -82,15 +110,36 @@ public class Main extends Application {
     public void refreshGameUI(GoGame goGame, Stage primaryStage) {
         Platform.runLater(() -> {
             gameBoard = new GameBoard(goGame, toServer, this);
-            StackPane root = new StackPane();
-            root.getChildren().add(gameBoard.createContent());
-            Scene scene = new Scene(root, 760, 760);
+
+            // Tablica wyników graczy
+            VBox scoreBoard = new VBox();
+            // Przykładowe etykiety dla wyników graczy
+            Label player1ScoreLabel = new Label("Gracz 1: " /*+ goGame.getPlayer1Score()*/);
+            Label player2ScoreLabel = new Label("Gracz 2: " /*+ goGame.getPlayer2Score()*/);
+            scoreBoard.getChildren().addAll(player1ScoreLabel, player2ScoreLabel);
+
+            // Przycisk zrezygnuj
+            Button resignButton = new Button("Zrezygnuj");
+            resignButton.setOnAction(e -> {
+                // Tutaj dodaj kod obsługi rezygnacji
+                // Na przykład, możesz wywołać metodę, która obsługuje rezygnację gracza
+            });
+
+            // Kontener po prawej stronie z wynikami i przyciskiem
+            HBox rightPane = new HBox(10);
+            rightPane.getChildren().addAll(scoreBoard, resignButton);
+            rightPane.setAlignment(Pos.CENTER_LEFT);
+
+            // Korzystamy z BorderPane, aby umieścić planszę na środku, a wyniki i przyciski po prawej stronie
+            BorderPane root = new BorderPane();
+            root.setCenter(gameBoard.createContent());
+            root.setLeft(rightPane);
+
+            Scene scene = new Scene(root, 960, 760);
             primaryStage.setScene(scene);
             primaryStage.show();
         });
     }
-
-
 
     public static void main(String[] args) {
         launch(args);

@@ -14,6 +14,7 @@ public class GameBoard extends Pane {
     private GoGame goGame;
     private ObjectOutputStream toServer;
     private Main main;
+    private static final int BOARD_MARGIN = 20;
 
     public GameBoard(GoGame goGame, ObjectOutputStream toServer, Main main) {
         this.goGame = goGame;
@@ -60,8 +61,8 @@ public class GameBoard extends Pane {
 
         // Rysuje linie siatki
         for (int i = 0; i < goGame.getBoardSize(); i++) {
-            Line hLine = new Line(0, i * TILE_SIZE, (goGame.getBoardSize() - 1) * TILE_SIZE, i * TILE_SIZE);
-            Line vLine = new Line(i * TILE_SIZE, 0, i * TILE_SIZE, (goGame.getBoardSize() - 1) * TILE_SIZE);
+            Line hLine = new Line(BOARD_MARGIN, i * TILE_SIZE + BOARD_MARGIN, (goGame.getBoardSize() - 1) * TILE_SIZE + BOARD_MARGIN, i * TILE_SIZE + BOARD_MARGIN);
+            Line vLine = new Line(i * TILE_SIZE + BOARD_MARGIN, BOARD_MARGIN, i * TILE_SIZE + BOARD_MARGIN, (goGame.getBoardSize() - 1) * TILE_SIZE + BOARD_MARGIN);
             getChildren().addAll(hLine, vLine);
         }
 
@@ -69,8 +70,8 @@ public class GameBoard extends Pane {
         for (int y = 0; y < goGame.getBoardSize(); y++) {
             for (int x = 0; x < goGame.getBoardSize(); x++) {
                 Circle interactionPoint = new Circle(TILE_SIZE / 2 - 2, Color.TRANSPARENT);
-                interactionPoint.setCenterX(x * TILE_SIZE);
-                interactionPoint.setCenterY(y * TILE_SIZE);
+                interactionPoint.setCenterX(x * TILE_SIZE + BOARD_MARGIN);
+                interactionPoint.setCenterY(y * TILE_SIZE + BOARD_MARGIN);
 
                 int finalX = x;
                 int finalY = y;
@@ -90,8 +91,8 @@ public class GameBoard extends Pane {
                 if (stone != null) {
                     Circle circle = new Circle(TILE_SIZE / 2 - 2);
                     circle.setFill(stone.getColor() == Stone.StoneColor.BLACK ? Color.BLACK : Color.WHITE);
-                    circle.setCenterX(x * TILE_SIZE);
-                    circle.setCenterY(y * TILE_SIZE);
+                    circle.setCenterX(x * TILE_SIZE + BOARD_MARGIN);
+                    circle.setCenterY(y * TILE_SIZE + BOARD_MARGIN);
                     getChildren().add(circle);
                 }
             }
@@ -104,14 +105,14 @@ public class GameBoard extends Pane {
         if (selectedStoneColor == Stone.StoneColor.BLACK) {
             Circle selectedStone = new Circle(TILE_SIZE / 2 - 2);
             selectedStone.setFill(Color.BLACK);
-            selectedStone.setCenterX(700); //
-            selectedStone.setCenterY(700); //
+            selectedStone.setCenterX(700 + BOARD_MARGIN); //
+            selectedStone.setCenterY(700 + BOARD_MARGIN); //
             getChildren().add(selectedStone);
         } else {
             Circle selectedStone = new Circle(TILE_SIZE / 2 - 2);
             selectedStone.setFill(Color.WHITE);
-            selectedStone.setCenterX(700);
-            selectedStone.setCenterY(700);
+            selectedStone.setCenterX(700 + BOARD_MARGIN);
+            selectedStone.setCenterY(700 + BOARD_MARGIN);
             getChildren().add(selectedStone);
         }
     }
