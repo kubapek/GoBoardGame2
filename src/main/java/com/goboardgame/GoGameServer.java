@@ -13,7 +13,7 @@ public class GoGameServer {
     private GoGame goGame;
 
     public GoGameServer() {
-        this.goGame = new GoGame(19); // Assume that GoGame is a class managing the game logic
+        this.goGame = new GoGame(19);
     }
 
     public void startServer() {
@@ -38,33 +38,15 @@ public class GoGameServer {
         }
     }
 
-    public void broadcastGameData(GameData gameData) {
-        synchronized (clients) {
-            for (ClientHandler client : clients) {
-                try {
-                    client.sendGameData(gameData);
-                } catch (IOException e) {
-                    System.out.println("Error sending data to a client: " + e.getMessage());
-                    clients.remove(client);
-                }
-            }
-        }
-    }
-
-    public void handleMove(MoveData moveData) {
-        System.out.println("elo");
-        // Logic for handling moves
-        // Update goGame and send the updated state to all clients
-
+    public void handleMove(MoveData moveData, ClientHandler sender) {
         int x = moveData.getX();
         int y = moveData.getY();
         Stone.StoneColor currentPlayer = goGame.getCurrentPlayer();
 
         if (goGame.placeStone(x, y, currentPlayer)) {
-            System.out.println("Gracz " + currentPlayer + " postawił kamień na pozycji x=" + x + ", y=" + y);
-            goGame.togglePlayer();
+            System.out.println("Player " + currentPlayer + " placed a stone at position x=" + x + ", y=" + y);
             GameData updatedGameData = new GameData(goGame);
-            broadcastGameData(updatedGameData);
+            broadcastGameData(updatedGameData, sender);
         }
     }
 
@@ -79,5 +61,23 @@ public class GoGameServer {
         server.startServer();
     }
 
+    public void removeClient(ClientHandler clientHandler) {
+        clients.remove(clientHandler);
+    }
+
+    private void broadcastGameData(GameData gameData, ClientHandler excludeClient) {
+        synchronized (clients) {
+            for (ClientHandler client : clients) {
+                if (client != excludeClient) {
+                    try {
+                        client.sendGameData(gameData);
+                    } catch (IOException e) {
+                        System.out.println("Error sending data to a client: " + e.getMessage());
+                        clients.remove(client);
+                    }
+                }
+            }
+        }
+    }
 
 }

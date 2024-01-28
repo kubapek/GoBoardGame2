@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 
 public class ClientHandler implements Runnable {
     private Socket clientSocket;
@@ -38,17 +39,17 @@ public class ClientHandler implements Runnable {
     public void run() {
         try {
             while (true) {
-                // Receiving data from the client
                 Object receivedData = inputStream.readObject();
-                System.out.println(receivedData);
-                // Implement the appropriate operations on the server's game logic
                 if (receivedData instanceof MoveData) {
                     MoveData moveData = (MoveData) receivedData;
-                    goGameServer.handleMove(moveData);
+                    goGameServer.handleMove(moveData, this);
                 }
             }
+        } catch (SocketException e) {
+            System.out.println("Zakończono grę");
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
+            goGameServer.removeClient(this);
         }
     }
 

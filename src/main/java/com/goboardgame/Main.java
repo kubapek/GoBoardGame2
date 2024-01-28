@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 
 public class Main extends Application {
     private ObjectOutputStream toServer;
@@ -55,6 +56,9 @@ public class Main extends Application {
                     Platform.runLater(() -> {
                         updateGameBoard(goGame);
                     });
+                } catch (SocketException e) {
+                    System.out.println("Zakończono grę");
+                    break;
                 } catch (IOException | ClassNotFoundException e) {
                     e.printStackTrace();
                     break;
