@@ -141,9 +141,19 @@ public class GoGame implements Serializable {
     public Set<Point> getWhiteStones() {
         return whiteStones;
     }
+
+    @Override
+    public String toString() {
+        return "GoGame{" +
+                "currentPlayer=" + currentPlayer +
+                ", blackStones=" + blackStones +
+                ", whiteStones=" + whiteStones +
+                '}';
+    }
 }
 
 class Point implements Serializable {
+
     int x, y;
 
     Point(int x, int y) {

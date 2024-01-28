@@ -39,6 +39,7 @@ public class ClientHandler implements Runnable {
         try {
             GameData initialGameData = new GameData(goGameServer.getGoGame());
             outputStream.writeObject(initialGameData);
+            outputStream.reset();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -62,8 +63,9 @@ public class ClientHandler implements Runnable {
     }
 
     public void sendGameData(GameData gameData) throws IOException {
-        System.out.println("Sending game data to client: " + clientSocket);
+//        System.out.println("Sending game data to client: " + clientSocket);
         outputStream.writeObject(gameData);
+        outputStream.reset();
     }
 
 }

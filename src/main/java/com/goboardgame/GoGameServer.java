@@ -83,6 +83,7 @@ public class GoGameServer {
         for (ClientHandler client : clients) {
             try {
 //                System.out.println("Sending game data to client: " + client);
+                System.out.println(gameData);
                 client.sendGameData(gameData);
             } catch (IOException e) {
 //                System.out.println("Error sending data to client " + client + ": " + e.getMessage());

@@ -6,9 +6,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.Socket;
 
 public class Main extends Application {
@@ -25,8 +23,10 @@ public class Main extends Application {
         new Thread(() -> {
             try {
                 Socket socket = new Socket("localhost", 8000);
-                toServer = new ObjectOutputStream(socket.getOutputStream());
-                fromServer = new ObjectInputStream(socket.getInputStream());
+                toServer = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+                fromServer = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
+
+                toServer.flush();
 
                 GameData initialGameData = (GameData) fromServer.readObject();
                 GoGame goGame = initialGameData.getGoGame();
@@ -35,24 +35,21 @@ public class Main extends Application {
                     createGameUI(primaryStage, goGame);
                 });
 
-                listenForUpdates();
+                listenForUpdates(primaryStage);
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
         }).start();
     }
 
-    private void listenForUpdates() {
+    private void listenForUpdates(Stage primaryStage) {
         new Thread(() -> {
             while (true) {
                 try {
                     GameData gameData = (GameData) fromServer.readObject();
-                    System.out.println("Received game data: " + gameData);
+                    System.out.println(gameData);
                     GoGame goGame = gameData.getGoGame();
-                    Platform.runLater(() -> {
-                        gameBoard.setGoGame(goGame); // Aktualizuje stan gry w gameBoard
-                        gameBoard.updateGameBoard(); // Rysuje ponownie planszę
-                    });
+                    refreshGameUI(goGame, primaryStage); // Aktualizuje UI na podstawie nowych danych
                 } catch (IOException | ClassNotFoundException e) {
                     System.out.println("Error or disconnection from server: " + e.getMessage());
                     break;
@@ -81,6 +78,18 @@ public class Main extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
     }
+
+    public void refreshGameUI(GoGame goGame, Stage primaryStage) {
+        Platform.runLater(() -> {
+            gameBoard = new GameBoard(goGame, toServer, this);
+            StackPane root = new StackPane();
+            root.getChildren().add(gameBoard.createContent());
+            Scene scene = new Scene(root, 760, 760);
+            primaryStage.setScene(scene);
+            primaryStage.show();
+        });
+    }
+
 
 
     public static void main(String[] args) {

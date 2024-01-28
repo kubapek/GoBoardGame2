@@ -48,12 +48,14 @@ public class GameBoard extends Pane {
 
     public void updateGameBoard() {
         Platform.runLater(() -> {
+            getChildren().clear(); // Usuń wszystkie elementy z planszy
             drawGrid();
             drawStones();
             System.out.println("Game board updated");
         });
     }
-    private void drawGrid() {
+
+    public void drawGrid() {
         getChildren().clear(); // Czyści obecne komponenty
 
         // Rysuje linie siatki
@@ -81,7 +83,7 @@ public class GameBoard extends Pane {
             }
         }
     }
-    private void drawStones() {
+    public void drawStones() {
         for (int y = 0; y < goGame.getBoardSize(); y++) {
             for (int x = 0; x < goGame.getBoardSize(); x++) {
                 Stone stone = goGame.getBoard()[x][y];
