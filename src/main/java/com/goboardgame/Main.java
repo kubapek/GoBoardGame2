@@ -2,16 +2,14 @@ package com.goboardgame;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.stage.Stage;
-import javafx.geometry.Pos;
-import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 import java.io.*;
 import java.net.Socket;
@@ -66,15 +64,6 @@ public class Main extends Application {
     }
 
 
-
-    public void updateGameBoard(GoGame goGame) {
-        Platform.runLater(() -> {
-            gameBoard.setGoGame(goGame); // Aktualizacja stanu gry
-            // Nie trzeba wywoływać tutaj updateGameBoard(), jeśli jest ona wywoływana w setGoGame
-        });
-    }
-
-
     private void createGameUI(Stage primaryStage, GoGame goGame) {
         gameBoard = new GameBoard(goGame, toServer, this);
 
@@ -85,8 +74,7 @@ public class Main extends Application {
 
         Button resignButton = new Button("Zrezygnuj");
         resignButton.setOnAction(e -> {
-            // Tutaj dodaj kod obsługi rezygnacji
-            // Na przykład, możesz wywołać metodę, która obsługuje rezygnację gracza
+
         });
 
         HBox rightPane = new HBox(10);
@@ -113,8 +101,11 @@ public class Main extends Application {
 
             Button resignButton = new Button("Zrezygnuj");
             resignButton.setOnAction(e -> {
-                // Tutaj dodaj kod obsługi rezygnacji
-                // Na przykład, możesz wywołać metodę, która obsługuje rezygnację gracza
+                try {
+                    toServer.writeObject(new PlayerToggleRequest());
+                } catch (IOException ex) {
+                    System.out.println(ex.getMessage());
+                }
             });
 
             HBox rightPane = new HBox(10);
