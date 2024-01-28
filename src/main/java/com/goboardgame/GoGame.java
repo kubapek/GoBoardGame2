@@ -29,75 +29,81 @@ public class GoGame implements Serializable {
             } else {
                 whiteStones.add(new Point(x, y));
             }
-//            removeCapturedStones(x, y);
+            removeCapturedStones(x, y);
             togglePlayer();
             return true;
         }
         return false;
     }
 
-//    private void removeCapturedStones(int x, int y) {
-//        for (int[] direction : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
-//            int adjacentX = x + direction[0];
-//            int adjacentY = y + direction[1];
-//            if (isOnBoard(adjacentX, adjacentY) && board[adjacentX][adjacentY] != null
-//                    && board[adjacentX][adjacentY].getColor() != currentPlayer) {
-//                if (!hasLiberties(adjacentX, adjacentY)) {
-//                    removeGroup(adjacentX, adjacentY);
-//                }
-//            }
-//        }
-//    }
-//
-//    private boolean hasLiberties(int x, int y) {
-//        Stone.StoneColor color = board[x][y].getColor();
-//        Set<Point> stonesToCheck = (color == Stone.StoneColor.BLACK) ? blackStones : whiteStones;
-//
-//        for (Point stone : stonesToCheck) {
-//            if (isAdjacent(x, y, stone.x, stone.y) && isLiberty(stone.x, stone.y)) {
-//                return true;
-//            }
-//        }
-//
-//        return false;
-//    }
-//
-//    private boolean isAdjacent(int x1, int y1, int x2, int y2) {
-//        return Math.abs(x1 - x2) + Math.abs(y1 - y2) == 1;
-//    }
-//
-//    private boolean isLiberty(int x, int y) {
-//        for (int[] direction : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
-//            int adjacentX = x + direction[0];
-//            int adjacentY = y + direction[1];
-//            if (isOnBoard(adjacentX, adjacentY) && board[adjacentX][adjacentY] == null) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
-//
-//    private void removeGroup(int x, int y) {
-//        Stone.StoneColor color = board[x][y].getColor();
-//        Set<Point> stonesToRemove = (color == Stone.StoneColor.BLACK) ? blackStones : whiteStones;
-//
-//        removeGroupRecursive(x, y, color, stonesToRemove);
-//    }
-//
-//    private void removeGroupRecursive(int x, int y, Stone.StoneColor color, Set<Point> stonesToRemove) {
-//        if (!isOnBoard(x, y) || board[x][y] == null || board[x][y].getColor() != color) {
-//            return;
-//        }
-//
-//        board[x][y] = null;
-//        stonesToRemove.remove(new Point(x, y));
-//
-//        for (int[] direction : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
-//            int adjacentX = x + direction[0];
-//            int adjacentY = y + direction[1];
-//            removeGroupRecursive(adjacentX, adjacentY, color, stonesToRemove);
-//        }
-//    }
+    private void removeCapturedStones(int x, int y) {
+        for (int[] direction : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
+            int adjacentX = x + direction[0];
+            int adjacentY = y + direction[1];
+            if (isOnBoard(adjacentX, adjacentY) && board[adjacentX][adjacentY] != null
+                    && board[adjacentX][adjacentY].getColor() != currentPlayer) {
+                if (!hasLiberties(adjacentX, adjacentY)) {
+                    removeGroup(adjacentX, adjacentY);
+                }
+            }
+        }
+    }
+
+    private boolean hasLiberties(int x, int y) {
+        Stone.StoneColor color = board[x][y].getColor();
+        Set<Point> visited = new HashSet<>();
+        return checkLibertiesRecursive(x, y, color, visited);
+    }
+
+    private boolean checkLibertiesRecursive(int x, int y, Stone.StoneColor color, Set<Point> visited) {
+        if (!isOnBoard(x, y) || visited.contains(new Point(x, y))) {
+            return false;
+        }
+
+        if (board[x][y] == null) {
+            return true;
+        }
+
+        if (board[x][y].getColor() != color) {
+            return false;
+        }
+
+        visited.add(new Point(x, y));
+
+        // Sprawdź wszystkie kierunki
+        for (int[] direction : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
+            int adjacentX = x + direction[0];
+            int adjacentY = y + direction[1];
+            if (checkLibertiesRecursive(adjacentX, adjacentY, color, visited)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    private void removeGroup(int x, int y) {
+        Stone.StoneColor color = board[x][y].getColor();
+        Set<Point> stonesToRemove = (color == Stone.StoneColor.BLACK) ? blackStones : whiteStones;
+
+        removeGroupRecursive(x, y, color, stonesToRemove);
+    }
+
+    private void removeGroupRecursive(int x, int y, Stone.StoneColor color, Set<Point> stonesToRemove) {
+        if (!isOnBoard(x, y) || board[x][y] == null || board[x][y].getColor() != color) {
+            return;
+        }
+
+        board[x][y] = null;
+        stonesToRemove.remove(new Point(x, y));
+
+        for (int[] direction : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
+            int adjacentX = x + direction[0];
+            int adjacentY = y + direction[1];
+            removeGroupRecursive(adjacentX, adjacentY, color, stonesToRemove);
+        }
+    }
 
     private boolean isValidMove(int x, int y) {
         if (x < 0 || x >= boardSize || y < 0 || y >= boardSize) {
