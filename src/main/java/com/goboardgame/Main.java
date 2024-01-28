@@ -78,26 +78,21 @@ public class Main extends Application {
     private void createGameUI(Stage primaryStage, GoGame goGame) {
         gameBoard = new GameBoard(goGame, toServer, this);
 
-        // Tablica wyników graczy
         VBox scoreBoard = new VBox();
-        // Przykładowe etykiety dla wyników graczy
         Label player1ScoreLabel = new Label("Gracz 1: " /*+ goGame.getPlayer1Score()*/);
         Label player2ScoreLabel = new Label("Gracz 2: " /*+ goGame.getPlayer2Score()*/);
         scoreBoard.getChildren().addAll(player1ScoreLabel, player2ScoreLabel);
 
-        // Przycisk zrezygnuj
         Button resignButton = new Button("Zrezygnuj");
         resignButton.setOnAction(e -> {
             // Tutaj dodaj kod obsługi rezygnacji
             // Na przykład, możesz wywołać metodę, która obsługuje rezygnację gracza
         });
 
-        // Kontener po prawej stronie z wynikami i przyciskiem
         HBox rightPane = new HBox(10);
         rightPane.getChildren().addAll(scoreBoard, resignButton);
         rightPane.setAlignment(Pos.CENTER_LEFT);
 
-        // Korzystamy z BorderPane, aby umieścić planszę na środku, a wyniki i przyciski po prawej stronie
         BorderPane root = new BorderPane();
         root.setCenter(gameBoard.createContent());
         root.setLeft(rightPane);
@@ -111,26 +106,21 @@ public class Main extends Application {
         Platform.runLater(() -> {
             gameBoard = new GameBoard(goGame, toServer, this);
 
-            // Tablica wyników graczy
             VBox scoreBoard = new VBox();
-            // Przykładowe etykiety dla wyników graczy
             Label player1ScoreLabel = new Label("Gracz 1: " /*+ goGame.getPlayer1Score()*/);
             Label player2ScoreLabel = new Label("Gracz 2: " /*+ goGame.getPlayer2Score()*/);
             scoreBoard.getChildren().addAll(player1ScoreLabel, player2ScoreLabel);
 
-            // Przycisk zrezygnuj
             Button resignButton = new Button("Zrezygnuj");
             resignButton.setOnAction(e -> {
                 // Tutaj dodaj kod obsługi rezygnacji
                 // Na przykład, możesz wywołać metodę, która obsługuje rezygnację gracza
             });
 
-            // Kontener po prawej stronie z wynikami i przyciskiem
             HBox rightPane = new HBox(10);
             rightPane.getChildren().addAll(scoreBoard, resignButton);
             rightPane.setAlignment(Pos.CENTER_LEFT);
 
-            // Korzystamy z BorderPane, aby umieścić planszę na środku, a wyniki i przyciski po prawej stronie
             BorderPane root = new BorderPane();
             root.setCenter(gameBoard.createContent());
             root.setLeft(rightPane);
