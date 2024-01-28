@@ -64,15 +64,6 @@ public class Main extends Application {
     }
 
 
-
-    public void updateGameBoard(GoGame goGame) {
-        Platform.runLater(() -> {
-            gameBoard.setGoGame(goGame); // Aktualizacja stanu gry
-            // Nie trzeba wywoływać tutaj updateGameBoard(), jeśli jest ona wywoływana w setGoGame
-        });
-    }
-
-
     private void createGameUI(Stage primaryStage, GoGame goGame) {
         gameBoard = new GameBoard(goGame, toServer, this);
 

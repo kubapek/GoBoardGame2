@@ -29,6 +29,9 @@ public class GoGame implements Serializable {
         if (isValidMove(x, y) && !isKo(x,y,color)) {
             Stone newStone = new Stone(color, x, y);
             board[x][y] = newStone;
+
+            removeCapturedStones(x, y);
+
             if (color == Stone.StoneColor.BLACK) {
                 previousBoardBlack = deepCopyBoard(board);
                 blackStones.add(new Point(x, y));
@@ -38,7 +41,6 @@ public class GoGame implements Serializable {
             }
 
             boolean isSuicidal = !hasLiberties(x, y);
-            removeCapturedStones(x, y);
 
             if (isSuicidal && !hasLiberties(x, y)) {
                 board[x][y] = null;
@@ -57,8 +59,88 @@ public class GoGame implements Serializable {
     }
 
     public boolean isKo(int x, int y, Stone.StoneColor color) {
-       return false;
+        // Create a temporary copy of the current board and place the stone
+        Stone[][] tempBoard = deepCopyBoard(this.board);
+        tempBoard[x][y] = new Stone(color, x, y);
+
+        // Simulate removal of opponent's stones on the temporary board
+        simulateRemovalOfStones(tempBoard, x, y, color);
+
+        // Get the appropriate previous board state
+        Stone[][] previousBoard = (color == Stone.StoneColor.BLACK) ? previousBoardBlack : previousBoardWhite;
+
+        // Compare the temporary board with the previous board state
+        return areBoardsEqual(tempBoard, previousBoard);
     }
+    private void simulateRemovalOfStones(Stone[][] board, int x, int y, Stone.StoneColor color) {
+        Stone.StoneColor opponentColor = (color == Stone.StoneColor.BLACK) ? Stone.StoneColor.WHITE : Stone.StoneColor.BLACK;
+
+        for (int[] direction : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
+            int adjacentX = x + direction[0];
+            int adjacentY = y + direction[1];
+
+            if (isOnBoard(adjacentX, adjacentY) && board[adjacentX][adjacentY] != null
+                    && board[adjacentX][adjacentY].getColor() == opponentColor) {
+                Set<Point> group = findGroup(board, adjacentX, adjacentY, opponentColor);
+                if (!hasLiberties(board, group)) {
+                    for (Point stone : group) {
+                        board[stone.getX()][stone.getY()] = null;
+                    }
+                }
+            }
+        }
+    }
+
+    private Set<Point> findGroup(Stone[][] board, int x, int y, Stone.StoneColor color) {
+        Set<Point> group = new HashSet<>();
+        findGroupRecursive(board, x, y, color, group);
+        return group;
+    }
+
+    private void findGroupRecursive(Stone[][] board, int x, int y, Stone.StoneColor color, Set<Point> group) {
+        if (!isOnBoard(x, y) || board[x][y] == null || board[x][y].getColor() != color || group.contains(new Point(x, y))) {
+            return;
+        }
+
+        group.add(new Point(x, y));
+
+        for (int[] direction : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
+            int adjacentX = x + direction[0];
+            int adjacentY = y + direction[1];
+            findGroupRecursive(board, adjacentX, adjacentY, color, group);
+        }
+    }
+
+    private boolean hasLiberties(Stone[][] board, Set<Point> group) {
+        for (Point stone : group) {
+            int x = stone.getX();
+            int y = stone.getY();
+            for (int[] direction : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
+                int adjacentX = x + direction[0];
+                int adjacentY = y + direction[1];
+                if (isOnBoard(adjacentX, adjacentY) && board[adjacentX][adjacentY] == null) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean areBoardsEqual(Stone[][] board1, Stone[][] board2) {
+        for (int i = 0; i < boardSize; i++) {
+            for (int j = 0; j < boardSize; j++) {
+                if (board1[i][j] != null && board2[i][j] != null) {
+                    if (board1[i][j].getColor() != board2[i][j].getColor()) {
+                        return false;
+                    }
+                } else if (board1[i][j] != board2[i][j]) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
 
 
     private Stone[][] deepCopyBoard(Stone[][] boardToCopy) {
