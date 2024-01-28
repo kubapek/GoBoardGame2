@@ -11,6 +11,8 @@ public class GoGame implements Serializable {
     private Set<Point> blackStones;
     private Set<Point> whiteStones;
     private int playersCount = 0;
+    private int player1Score;
+    private int player2Score;
 
     public GoGame(int boardSize) {
         this.boardSize = boardSize;
@@ -18,6 +20,23 @@ public class GoGame implements Serializable {
         this.currentPlayer = Stone.StoneColor.BLACK;
         blackStones = new HashSet<>();
         whiteStones = new HashSet<>();
+    }
+
+    public int getPlayer1Score() {
+        return player1Score;
+    }
+
+    public int getPlayer2Score() {
+        return player2Score;
+    }
+
+    private void updateScores() {
+        player1Score = countStonesInGroup(blackStones);
+        player2Score = countStonesInGroup(whiteStones);
+    }
+
+    private int countStonesInGroup(Set<Point> group) {
+        return group.size();
     }
 
     public boolean placeStone(int x, int y, Stone.StoneColor color) {
@@ -44,6 +63,7 @@ public class GoGame implements Serializable {
             }
 
             togglePlayer();
+            updateScores();
             return true;
         }
         return false;
@@ -51,6 +71,7 @@ public class GoGame implements Serializable {
 
 
     private void removeCapturedStones(int x, int y) {
+        Set<Point> capturedGroup = new HashSet<>();
         for (int[] direction : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
             int adjacentX = x + direction[0];
             int adjacentY = y + direction[1];
@@ -58,9 +79,17 @@ public class GoGame implements Serializable {
                     && board[adjacentX][adjacentY].getColor() != currentPlayer) {
                 Set<Point> group = findGroup(adjacentX, adjacentY);
                 if (!hasLiberties(group)) {
+                    capturedGroup.addAll(group);
                     removeGroup(group);
                 }
             }
+        }
+        if (currentPlayer == Stone.StoneColor.BLACK) {
+            whiteStones.removeAll(capturedGroup);
+            player2Score -= capturedGroup.size();
+        } else {
+            blackStones.removeAll(capturedGroup);
+            player1Score -= capturedGroup.size();
         }
     }
 
