@@ -1,12 +1,15 @@
 package com.goboardgame;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 public class GoGame implements Serializable {
     private final int boardSize;
     private Stone[][] board;
+    private Stone[][] previousBoardBlack;
+    private Stone[][] previousBoardWhite;
     private Stone.StoneColor currentPlayer;
     private Set<Point> blackStones;
     private Set<Point> whiteStones;
@@ -15,18 +18,22 @@ public class GoGame implements Serializable {
     public GoGame(int boardSize) {
         this.boardSize = boardSize;
         this.board = new Stone[boardSize][boardSize];
+        this.previousBoardBlack = new Stone[boardSize][boardSize];
+        this.previousBoardWhite = new Stone[boardSize][boardSize];
         this.currentPlayer = Stone.StoneColor.BLACK;
         blackStones = new HashSet<>();
         whiteStones = new HashSet<>();
     }
 
     public boolean placeStone(int x, int y, Stone.StoneColor color) {
-        if (isValidMove(x, y)) {
+        if (isValidMove(x, y) && !isKo(x,y,color)) {
             Stone newStone = new Stone(color, x, y);
             board[x][y] = newStone;
             if (color == Stone.StoneColor.BLACK) {
+                previousBoardBlack = deepCopyBoard(board);
                 blackStones.add(new Point(x, y));
             } else {
+                previousBoardWhite = deepCopyBoard(board);
                 whiteStones.add(new Point(x, y));
             }
 
@@ -48,6 +55,22 @@ public class GoGame implements Serializable {
         }
         return false;
     }
+
+    public boolean isKo(int x, int y, Stone.StoneColor color) {
+       return false;
+    }
+
+
+    private Stone[][] deepCopyBoard(Stone[][] boardToCopy) {
+        Stone[][] newBoard = new Stone[boardSize][boardSize];
+        for (int i = 0; i < boardSize; i++) {
+            for (int j = 0; j < boardSize; j++) {
+                newBoard[i][j] = boardToCopy[i][j] != null ? new Stone(boardToCopy[i][j].getColor(), i, j) : null;
+            }
+        }
+        return newBoard;
+    }
+
 
 
     private void removeCapturedStones(int x, int y) {
