@@ -2,8 +2,7 @@ package com.goboardgame;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class GoGameTest {
 
@@ -26,4 +25,55 @@ class GoGameTest {
         assertNull(game.getBoard()[1][1], "Kamień WHITE powinien zostać usunięty.");
 
     }
+
+    @Test
+    void testInitialBoardSize() {
+        GoGame game = new GoGame(19);
+        assertEquals(19, game.getBoardSize());
+    }
+
+    @Test
+    void testPlaceStoneValidMove() {
+        GoGame game = new GoGame(9);
+        assertTrue(game.placeStone(4, 4, Stone.StoneColor.BLACK));
+        assertEquals(Stone.StoneColor.WHITE, game.getCurrentPlayer());
+    }
+
+    @Test
+    void testPlaceStoneInvalidMove() {
+        GoGame game = new GoGame(9);
+        assertTrue(game.placeStone(4, 4, Stone.StoneColor.BLACK));
+        assertFalse(game.placeStone(4, 4, Stone.StoneColor.WHITE));
+    }
+
+    @Test
+    void testKoRule() {
+        GoGame game = new GoGame(9);
+
+        // Set up a situation where Ko rule applies
+        assertTrue(game.placeStone(0, 1, Stone.StoneColor.BLACK));
+        assertTrue(game.placeStone(1, 1, Stone.StoneColor.WHITE));
+        assertTrue(game.placeStone(1, 0, Stone.StoneColor.BLACK));
+        assertTrue(game.placeStone(2, 1, Stone.StoneColor.BLACK));
+        assertTrue(game.placeStone(1, 2, Stone.StoneColor.BLACK));
+
+        assertFalse(game.placeStone(1, 1, Stone.StoneColor.WHITE));
+        assertFalse(game.placeStone(1, 1, Stone.StoneColor.BLACK));
+    }
+
+    @Test
+    void testCapturingStones() {
+        GoGame game = new GoGame(9);
+
+        // Set up a situation where stones are captured
+        assertTrue(game.placeStone(0, 1, Stone.StoneColor.BLACK));
+        assertTrue(game.placeStone(1, 1, Stone.StoneColor.WHITE));
+        assertTrue(game.placeStone(1, 0, Stone.StoneColor.BLACK));
+        assertTrue(game.placeStone(2, 1, Stone.StoneColor.BLACK));
+        assertTrue(game.placeStone(1, 2, Stone.StoneColor.BLACK));
+
+        assertEquals(1, game.getPlayer1Score());
+        assertEquals(0, game.getPlayer2Score());
+    }
+
 }
