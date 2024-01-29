@@ -59,6 +59,11 @@ public class ClientHandler implements Runnable {
                     if(playerColor == goGameServer.getGoGame().getCurrentPlayer())
                         goGameServer.getGoGame().togglePlayer();
                 }
+                if (receivedData instanceof SurrenderRequest) {
+                    System.out.println("gracz się poddał");
+                    //goGameServer.getGoGame().togglePlayer();
+
+                }
             }
         } catch (IOException | ClassNotFoundException e) {
             System.out.println("Error or disconnection with client " + clientSocket + ": " + e.getMessage());

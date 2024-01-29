@@ -1,5 +1,13 @@
 package com.goboardgame;
 
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.paint.Color;
+import javafx.stage.Stage;
+
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -35,15 +43,6 @@ public class GoGame implements Serializable {
         return player2Score;
     }
 
-    private void updateScores() {
-        player1Score = countStonesInGroup(blackStones);
-        player2Score = countStonesInGroup(whiteStones);
-    }
-
-    private int countStonesInGroup(Set<Point> group) {
-        return group.size();
-    }
-
     public boolean placeStone(int x, int y, Stone.StoneColor color) {
         if (isValidMove(x, y) && !isKo(x,y,color)) {
             Stone newStone = new Stone(color, x, y);
@@ -72,7 +71,6 @@ public class GoGame implements Serializable {
             }
 
             togglePlayer();
-            updateScores();
             return true;
         }
         return false;
@@ -161,8 +159,6 @@ public class GoGame implements Serializable {
         return true;
     }
 
-
-
     private Stone[][] deepCopyBoard(Stone[][] boardToCopy) {
         Stone[][] newBoard = new Stone[boardSize][boardSize];
         for (int i = 0; i < boardSize; i++) {
@@ -172,8 +168,6 @@ public class GoGame implements Serializable {
         }
         return newBoard;
     }
-
-
 
     private void removeCapturedStones(int x, int y) {
         Set<Point> capturedGroup = new HashSet<>();
@@ -191,10 +185,10 @@ public class GoGame implements Serializable {
         }
         if (currentPlayer == Stone.StoneColor.BLACK) {
             whiteStones.removeAll(capturedGroup);
-            player2Score -= capturedGroup.size();
+            player1Score += capturedGroup.size();
         } else {
             blackStones.removeAll(capturedGroup);
-            player1Score -= capturedGroup.size();
+            player2Score += capturedGroup.size();
         }
     }
 
@@ -342,4 +336,5 @@ class Point implements Serializable {
     public int getY() {
         return y;
     }
+
 }

@@ -4,11 +4,11 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.io.*;
@@ -18,6 +18,11 @@ public class Main extends Application {
     private ObjectOutputStream toServer;
     private ObjectInputStream fromServer;
     private GameBoard gameBoard;
+    private boolean player1Surrendered = false;
+    private boolean player2Surrendered = false;
+    private boolean gameEnded = false;
+    private boolean player1Resigned = false;
+    private boolean player2Resigned = false;
 
     @Override
     public void start(Stage primaryStage) {
@@ -54,7 +59,10 @@ public class Main extends Application {
                     GameData gameData = (GameData) fromServer.readObject();
                     System.out.println(gameData);
                     GoGame goGame = gameData.getGoGame();
-                    refreshGameUI(goGame, primaryStage); // Aktualizuje UI na podstawie nowych danych
+                    if(gameEnded){
+                        displayWinnerDialog();
+                    }else{
+                        refreshGameUI(goGame, primaryStage);}
                 } catch (IOException | ClassNotFoundException e) {
                     System.out.println("Error or disconnection from server: " + e.getMessage());
                     break;
@@ -77,6 +85,15 @@ public class Main extends Application {
 
         });
 
+        Button surrenderButton = new Button("Poddaj grę");
+        surrenderButton.setOnAction(e -> {
+
+        });
+
+        HBox poddanie = new HBox(10);
+        poddanie.getChildren().addAll(surrenderButton);
+        poddanie.setAlignment(Pos.BOTTOM_LEFT);
+
         HBox rightPane = new HBox(10);
         rightPane.getChildren().addAll(scoreBoard, resignButton);
         rightPane.setAlignment(Pos.CENTER_LEFT);
@@ -84,6 +101,8 @@ public class Main extends Application {
         BorderPane root = new BorderPane();
         root.setCenter(gameBoard.createContent());
         root.setLeft(rightPane);
+        root.setBottom(poddanie);
+        root.setBackground(new Background(new BackgroundFill(Color.BURLYWOOD,null,null)));
 
         Scene scene = new Scene(root, 960, 760);
         primaryStage.setScene(scene);
@@ -92,6 +111,7 @@ public class Main extends Application {
 
     public void refreshGameUI(GoGame goGame, Stage primaryStage) {
         Platform.runLater(() -> {
+            if(gameEnded){ displayWinnerDialog();}
             gameBoard = new GameBoard(goGame, toServer, this);
 
             VBox scoreBoard = new VBox();
@@ -101,12 +121,25 @@ public class Main extends Application {
 
             Button resignButton = new Button("Zrezygnuj");
             resignButton.setOnAction(e -> {
+
+            });
+
+            Button surrenderButton = new Button("Poddaj grę");
+            surrenderButton.setOnAction(e -> {
+                gameEnded = true;
+                if(goGame.getCurrentPlayer() == Stone.StoneColor.BLACK){player1Surrendered = true;}
+                if(goGame.getCurrentPlayer() == Stone.StoneColor.WHITE){player2Surrendered = true;}
                 try {
-                    toServer.writeObject(new PlayerToggleRequest());
+                    toServer.writeObject(new SurrenderRequest());
                 } catch (IOException ex) {
                     System.out.println(ex.getMessage());
                 }
+                displayWinnerDialog();
             });
+
+            HBox poddanie = new HBox(10);
+            poddanie.getChildren().addAll(surrenderButton);
+            poddanie.setAlignment(Pos.CENTER_LEFT);
 
             HBox rightPane = new HBox(10);
             rightPane.getChildren().addAll(scoreBoard, resignButton);
@@ -115,12 +148,42 @@ public class Main extends Application {
             BorderPane root = new BorderPane();
             root.setCenter(gameBoard.createContent());
             root.setLeft(rightPane);
+            root.setBottom(poddanie);
+            root.setBackground(new Background(new BackgroundFill(Color.BURLYWOOD, null, null)));
 
             Scene scene = new Scene(root, 960, 760);
             primaryStage.setScene(scene);
             primaryStage.show();
         });
     }
+
+    private void displayWinnerDialog() {
+        Platform.runLater(() -> {
+            String winnerMessage = null;
+            if (player1Surrendered && !player2Surrendered) {
+                winnerMessage = "Gracz 1 się poddał, więc Gracz 2 wygrał!";
+            }
+            if (!player1Surrendered && player2Surrendered) {
+                winnerMessage = "Gracz 2 się poddał, więc Gracz 1 wygrał!";
+            }
+
+            try {
+                toServer.writeObject(new WinnerInfo(winnerMessage));
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
+
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Koniec gry");
+            alert.setHeaderText(null);
+            alert.setContentText(winnerMessage);
+            alert.setOnHidden(event -> {
+                Platform.exit();
+            });
+            alert.showAndWait();
+        });
+    }
+
 
     public static void main(String[] args) {
         launch(args);

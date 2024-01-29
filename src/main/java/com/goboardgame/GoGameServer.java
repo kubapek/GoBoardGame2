@@ -65,8 +65,6 @@ public class GoGameServer {
         }
     }
 
-
-
     public GoGame getGoGame() {
         return goGame;
     }
@@ -88,10 +86,7 @@ public class GoGameServer {
                 client.sendGameData(gameData);
             } catch (IOException e) {
 //                System.out.println("Error sending data to client " + client + ": " + e.getMessage());
-                // reszta kodu...
             }
         }
     }
-
-
 }
