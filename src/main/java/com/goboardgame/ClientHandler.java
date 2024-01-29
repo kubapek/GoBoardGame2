@@ -56,7 +56,9 @@ public class ClientHandler implements Runnable {
                 }
                 if (receivedData instanceof PlayerToggleRequest) {
                     if(goGameServer.isLastMoveResignation()) {
-                        //broadcastGoGameData
+                        GoGame EndGoGame = goGameServer.getGoGame();
+                        EndGameData endGameData = new EndGameData(EndGoGame);
+                        goGameServer.broadcastEndGameData(endGameData);
                     }
                     else if(playerColor == goGameServer.getGoGame().getCurrentPlayer()) {
                         goGameServer.getGoGame().togglePlayer();
@@ -87,6 +89,12 @@ public class ClientHandler implements Runnable {
     public void sendWinnerInfo(WinnerInfo winnerInfo) throws IOException {
         System.out.println("Sending winner data to client: " + clientSocket);
         outputStream.writeObject(winnerInfo);
+        outputStream.reset();
+    }
+
+    public void sendEndGameData(EndGameData endGameData) throws IOException {
+        //System.out.println("Sending endGameData to client: " + clientSocket);
+        outputStream.writeObject(endGameData);
         outputStream.reset();
     }
 
