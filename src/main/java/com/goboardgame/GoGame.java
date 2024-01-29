@@ -24,6 +24,7 @@ public class GoGame implements Serializable {
     private int playersCount = 0;
     private int player1Score;
     private int player2Score;
+    private boolean gameEnded;
 
     public GoGame(int boardSize) {
         this.boardSize = boardSize;
@@ -300,6 +301,14 @@ public class GoGame implements Serializable {
 
     public Set<Point> getWhiteStones() {
         return whiteStones;
+    }
+
+    public boolean isGameEnded() {
+        return gameEnded;
+    }
+
+    public void setGameEnded() {
+        this.gameEnded = true;
     }
 }
 

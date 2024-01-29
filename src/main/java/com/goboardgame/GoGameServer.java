@@ -56,6 +56,19 @@ public class GoGameServer {
         }
     }
 
+    public void broadcastSurrenderData(ClientHandler sender) {
+        String winnerMessage = sender.getPlayerColor() == Stone.StoneColor.BLACK ? "Białe wygrały" : "Czarne wygrały";
+        WinnerInfo winnerInfo = new WinnerInfo(winnerMessage);
+        for (ClientHandler client : clients) {
+            try {
+//                System.out.println("Sending game data to client: " + client);
+                client.sendWinnerInfo(winnerInfo);
+            } catch (IOException e) {
+//                System.out.println("Error sending data to client " + client + ": " + e.getMessage());
+            }
+        }
+    }
+
     private void logGameState() {
         for (Stone[] stones : getGoGame().getBoard()) {
             for(int i = 0; i < stones.length; i++) {

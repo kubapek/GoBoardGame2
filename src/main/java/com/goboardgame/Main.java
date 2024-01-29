@@ -21,8 +21,6 @@ public class Main extends Application {
     private boolean player1Surrendered = false;
     private boolean player2Surrendered = false;
     private boolean gameEnded = false;
-    private boolean player1Resigned = false;
-    private boolean player2Resigned = false;
 
     @Override
     public void start(Stage primaryStage) {
@@ -59,10 +57,7 @@ public class Main extends Application {
                     GameData gameData = (GameData) fromServer.readObject();
                     System.out.println(gameData);
                     GoGame goGame = gameData.getGoGame();
-                    if(gameEnded){
-                        displayWinnerDialog();
-                    }else{
-                        refreshGameUI(goGame, primaryStage);}
+                    refreshGameUI(goGame, primaryStage);
                 } catch (IOException | ClassNotFoundException e) {
                     System.out.println("Error or disconnection from server: " + e.getMessage());
                     break;
@@ -111,7 +106,6 @@ public class Main extends Application {
 
     public void refreshGameUI(GoGame goGame, Stage primaryStage) {
         Platform.runLater(() -> {
-            if(gameEnded){ displayWinnerDialog();}
             gameBoard = new GameBoard(goGame, toServer, this);
 
             VBox scoreBoard = new VBox();
@@ -126,15 +120,11 @@ public class Main extends Application {
 
             Button surrenderButton = new Button("Poddaj grę");
             surrenderButton.setOnAction(e -> {
-                gameEnded = true;
-                if(goGame.getCurrentPlayer() == Stone.StoneColor.BLACK){player1Surrendered = true;}
-                if(goGame.getCurrentPlayer() == Stone.StoneColor.WHITE){player2Surrendered = true;}
                 try {
                     toServer.writeObject(new SurrenderRequest());
                 } catch (IOException ex) {
                     System.out.println(ex.getMessage());
                 }
-                displayWinnerDialog();
             });
 
             HBox poddanie = new HBox(10);
@@ -157,26 +147,12 @@ public class Main extends Application {
         });
     }
 
-    private void displayWinnerDialog() {
+    private void displayWinnerDialog(WinnerInfo winnerInfo) {
         Platform.runLater(() -> {
-            String winnerMessage = null;
-            if (player1Surrendered && !player2Surrendered) {
-                winnerMessage = "Gracz 1 się poddał, więc Gracz 2 wygrał!";
-            }
-            if (!player1Surrendered && player2Surrendered) {
-                winnerMessage = "Gracz 2 się poddał, więc Gracz 1 wygrał!";
-            }
-
-            try {
-                toServer.writeObject(new WinnerInfo(winnerMessage));
-            } catch (IOException e) {
-                System.out.println(e.getMessage());
-            }
-
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Koniec gry");
             alert.setHeaderText(null);
-            alert.setContentText(winnerMessage);
+            alert.setContentText(winnerInfo.getWinnerMessage());
             alert.setOnHidden(event -> {
                 Platform.exit();
             });

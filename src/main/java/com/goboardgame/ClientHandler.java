@@ -51,8 +51,7 @@ public class ClientHandler implements Runnable {
 //                System.out.println("Waiting for data from client: " + clientSocket);
                 Object receivedData = inputStream.readObject();
 //                System.out.println("Received data from client: " + clientSocket + ", data: " + receivedData);
-                if (receivedData instanceof MoveData) {
-                    MoveData moveData = (MoveData) receivedData;
+                if (receivedData instanceof MoveData moveData) {
                     goGameServer.handleMove(moveData, this);
                 }
                 if (receivedData instanceof PlayerToggleRequest) {
@@ -60,9 +59,10 @@ public class ClientHandler implements Runnable {
                         goGameServer.getGoGame().togglePlayer();
                 }
                 if (receivedData instanceof SurrenderRequest) {
-                    System.out.println("gracz się poddał");
-                    //goGameServer.getGoGame().togglePlayer();
-
+                   if(playerColor == goGameServer.getGoGame().getCurrentPlayer()) {
+                       goGameServer.getGoGame().setGameEnded();
+                       goGameServer.broadcastSurrenderData(this);
+                   }
                 }
             }
         } catch (IOException | ClassNotFoundException e) {
@@ -74,6 +74,11 @@ public class ClientHandler implements Runnable {
     public void sendGameData(GameData gameData) throws IOException {
 //        System.out.println("Sending game data to client: " + clientSocket);
         outputStream.writeObject(gameData);
+        outputStream.reset();
+    }
+
+    public void sendWinnerInfo(WinnerInfo winnerInfo) throws IOException {
+        outputStream.writeObject(winnerInfo);
         outputStream.reset();
     }
 
