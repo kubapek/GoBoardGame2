@@ -1,6 +1,5 @@
 package com.goboardgame;
 
-import javafx.application.Platform;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -29,7 +28,6 @@ public class GameBoard extends Pane {
     }
 
 
-
     private void handleStonePlacement(int x, int y) {
         System.out.println("Handling stone placement at x=" + x + ", y=" + y);
         sendMoveToServer(x, y);
@@ -44,16 +42,6 @@ public class GameBoard extends Pane {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-
-    public void updateGameBoard() {
-        Platform.runLater(() -> {
-            getChildren().clear(); // Usuń wszystkie elementy z planszy
-            drawGrid();
-            drawStones();
-            System.out.println("Game board updated");
-        });
     }
 
     public void drawGrid() {
@@ -84,6 +72,7 @@ public class GameBoard extends Pane {
             }
         }
     }
+
     public void drawStones() {
         for (int y = 0; y < goGame.getBoardSize(); y++) {
             for (int x = 0; x < goGame.getBoardSize(); x++) {
@@ -98,26 +87,4 @@ public class GameBoard extends Pane {
             }
         }
     }
-
-
-
-    public void highlightSelectedStone(Stone.StoneColor selectedStoneColor) {
-        if (selectedStoneColor == Stone.StoneColor.BLACK) {
-            Circle selectedStone = new Circle(TILE_SIZE / 2 - 2);
-            selectedStone.setFill(Color.BLACK);
-            selectedStone.setCenterX(700 + BOARD_MARGIN); //
-            selectedStone.setCenterY(700 + BOARD_MARGIN); //
-            getChildren().add(selectedStone);
-        } else {
-            Circle selectedStone = new Circle(TILE_SIZE / 2 - 2);
-            selectedStone.setFill(Color.WHITE);
-            selectedStone.setCenterX(700 + BOARD_MARGIN);
-            selectedStone.setCenterY(700 + BOARD_MARGIN);
-            getChildren().add(selectedStone);
-        }
-    }
-    public void setGoGame(GoGame goGame) {
-        this.goGame = goGame;
-    }
-
 }

@@ -11,6 +11,7 @@ public class GoGameServer {
     private static final int PORT = 8000;
     private final Set<ClientHandler> clients = Collections.synchronizedSet(new HashSet<>());
     private GoGame goGame;
+    private boolean lastMoveResignation = false;
 
     public GoGameServer() {
         this.goGame = new GoGame(19);
@@ -52,6 +53,7 @@ public class GoGameServer {
 
                 GameData updatedGameData = new GameData(goGame);
                 broadcastGameData(updatedGameData);
+                setLastMoveResignation(false);
             }
         }
     }
@@ -80,6 +82,14 @@ public class GoGameServer {
 
     public GoGame getGoGame() {
         return goGame;
+    }
+
+    public boolean isLastMoveResignation() {
+        return lastMoveResignation;
+    }
+
+    public void setLastMoveResignation(boolean lastMoveResignation) {
+        this.lastMoveResignation = lastMoveResignation;
     }
 
     public static void main(String[] args) {

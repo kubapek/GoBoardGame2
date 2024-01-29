@@ -55,8 +55,13 @@ public class ClientHandler implements Runnable {
                     goGameServer.handleMove(moveData, this);
                 }
                 if (receivedData instanceof PlayerToggleRequest) {
-                    if(playerColor == goGameServer.getGoGame().getCurrentPlayer())
+                    if(goGameServer.isLastMoveResignation()) {
+                        //broadcastGoGameData
+                    }
+                    else if(playerColor == goGameServer.getGoGame().getCurrentPlayer()) {
                         goGameServer.getGoGame().togglePlayer();
+                        goGameServer.setLastMoveResignation(true);
+                    }
                 }
                 if (receivedData instanceof SurrenderRequest) {
                    if(playerColor == goGameServer.getGoGame().getCurrentPlayer()) {
