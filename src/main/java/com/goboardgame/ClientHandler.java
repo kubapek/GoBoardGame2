@@ -62,6 +62,8 @@ public class ClientHandler implements Runnable {
                    if(playerColor == goGameServer.getGoGame().getCurrentPlayer()) {
                        goGameServer.getGoGame().setGameEnded();
                        goGameServer.broadcastSurrenderData(this);
+                       String kolor = playerColor == Stone.StoneColor.BLACK ? "czarnym" : "bialym";
+                       System.out.println("wysłane info o poddaniu sie przez gracza o kolorze " + kolor);
                    }
                 }
             }
@@ -78,6 +80,7 @@ public class ClientHandler implements Runnable {
     }
 
     public void sendWinnerInfo(WinnerInfo winnerInfo) throws IOException {
+        System.out.println("Sending winner data to client: " + clientSocket);
         outputStream.writeObject(winnerInfo);
         outputStream.reset();
     }
