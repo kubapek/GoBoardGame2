@@ -1,15 +1,6 @@
 package com.goboardgame;
 
-import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.paint.Color;
-import javafx.stage.Stage;
-
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -45,7 +36,7 @@ public class GoGame implements Serializable {
     }
 
     public boolean placeStone(int x, int y, Stone.StoneColor color) {
-        if (isValidMove(x, y) && !isKo(x,y,color)) {
+        if (isValidMove(x, y) && !isKo(x, y, color)) {
             Stone newStone = new Stone(color, x, y);
             board[x][y] = newStone;
 
@@ -91,6 +82,7 @@ public class GoGame implements Serializable {
         // Compare the temporary board with the previous board state
         return areBoardsEqual(tempBoard, previousBoard);
     }
+
     private void simulateRemovalOfStones(Stone[][] board, int x, int y, Stone.StoneColor color) {
         Stone.StoneColor opponentColor = (color == Stone.StoneColor.BLACK) ? Stone.StoneColor.WHITE : Stone.StoneColor.BLACK;
 
