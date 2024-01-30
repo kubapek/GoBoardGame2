@@ -71,6 +71,16 @@ public class GoGameServer {
         }
     }
 
+    public void broadcastEndGameData(EndGameData endGameData){
+        for (ClientHandler client : clients) {
+            try {
+                client.sendEndGameData(endGameData);
+            } catch (IOException e) {
+                System.out.println("Error sending endGameData to client " + client + ": " + e.getMessage());
+            }
+        }
+    }
+
     private void logGameState() {
         for (Stone[] stones : getGoGame().getBoard()) {
             for(int i = 0; i < stones.length; i++) {

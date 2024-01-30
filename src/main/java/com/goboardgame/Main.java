@@ -54,6 +54,8 @@ public class Main extends Application {
                     Object receivedData = fromServer.readObject();
                     if(receivedData instanceof WinnerInfo winnerInfo)
                         displayWinnerDialog(winnerInfo.getWinnerMessage());
+                    if(receivedData instanceof EndGameData endGameData)
+                        displayPointsDialog(endGameData.getEndGoGame());
                     if(receivedData instanceof GameData gameData) {
                         System.out.println(gameData);
                         GoGame goGame = gameData.getGoGame();
@@ -71,10 +73,9 @@ public class Main extends Application {
     private void createGameUI(Stage primaryStage, GoGame goGame) {
         gameBoard = new GameBoard(goGame, toServer, this);
 
-        VBox scoreBoard = new VBox();
-        Label player1ScoreLabel = new Label("Gracz 1: " + goGame.getPlayer1Score());
-        Label player2ScoreLabel = new Label("Gracz 2: " + goGame.getPlayer2Score());
-        scoreBoard.getChildren().addAll(player1ScoreLabel, player2ScoreLabel);
+        VBox scoreBoard = new VBox(10);
+        Label player1ScoreLabel = new Label("Czarne: " + goGame.getPlayer1Score());
+        Label player2ScoreLabel = new Label("Białe: " + goGame.getPlayer2Score());
 
         Button resignButton = new Button("Zrezygnuj");
         resignButton.setOnAction(e -> {
@@ -97,18 +98,11 @@ public class Main extends Application {
             }
         });
 
-        HBox poddanie = new HBox(10);
-        poddanie.getChildren().addAll(surrenderButton);
-        poddanie.setAlignment(Pos.BOTTOM_LEFT);
-
-        HBox rightPane = new HBox(10);
-        rightPane.getChildren().addAll(scoreBoard, resignButton);
-        rightPane.setAlignment(Pos.CENTER_LEFT);
+        scoreBoard.getChildren().addAll(player1ScoreLabel, player2ScoreLabel, resignButton, surrenderButton);
 
         BorderPane root = new BorderPane();
         root.setCenter(gameBoard.createContent());
-        root.setLeft(rightPane);
-        root.setBottom(poddanie);
+        root.setLeft(scoreBoard);
         root.setBackground(new Background(new BackgroundFill(Color.BURLYWOOD,null,null)));
 
         Scene scene = new Scene(root, 500, 400);
@@ -133,6 +127,18 @@ public class Main extends Application {
         });
     }
 
+    private void displayPointsDialog(GoGame goGame){
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Koniec gry");
+            alert.setHeaderText(null);
+            alert.setContentText("Podsumowanie punktów zdobytych przez graczy: \n" + "Czarne: " + goGame.getPlayer1Score()+"\nBiałe: " + goGame.getPlayer2Score());
+            alert.setOnHidden(event -> {
+                Platform.exit();
+            });
+            alert.showAndWait();
+        });
+    }
 
     public static void main(String[] args) {
         launch(args);
