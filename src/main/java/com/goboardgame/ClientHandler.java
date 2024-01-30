@@ -6,8 +6,8 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 public class ClientHandler implements Runnable {
-    private Socket clientSocket;
-    private GoGameServer goGameServer;
+    private final Socket clientSocket;
+    private final GoGameServer goGameServer;
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
     private Stone.StoneColor playerColor;
@@ -17,12 +17,11 @@ public class ClientHandler implements Runnable {
         this.goGameServer = goGameServer;
 
         if (goGameServer.getGoGame().getPlayersCount() == 0) {
-            playerColor = Stone.StoneColor.BLACK; // Pierwszy gracz dostaje kolor czarny
+            playerColor = Stone.StoneColor.BLACK;
         } else if (goGameServer.getGoGame().getPlayersCount() == 1) {
-            playerColor = Stone.StoneColor.WHITE; // Drugi gracz dostaje kolor biały
+            playerColor = Stone.StoneColor.WHITE;
         }
 
-        // Zwiększ liczbę graczy na planszy
         goGameServer.getGoGame().incrementPlayersCount();
 
         try {
@@ -47,7 +46,7 @@ public class ClientHandler implements Runnable {
 
     public void run() {
         try {
-            while (true) {
+            while (!goGameServer.getGoGame().isGameEnded()) {
 //                System.out.println("Waiting for data from client: " + clientSocket);
                 Object receivedData = inputStream.readObject();
 //                System.out.println("Received data from client: " + clientSocket + ", data: " + receivedData);
@@ -55,23 +54,26 @@ public class ClientHandler implements Runnable {
                     goGameServer.handleMove(moveData, this);
                 }
                 if (receivedData instanceof PlayerToggleRequest) {
-                    if(goGameServer.isLastMoveResignation()) {
-                        GoGame EndGoGame = goGameServer.getGoGame();
-                        EndGameData endGameData = new EndGameData(EndGoGame);
-                        goGameServer.broadcastEndGameData(endGameData);
-                    }
-                    else if(playerColor == goGameServer.getGoGame().getCurrentPlayer()) {
-                        goGameServer.getGoGame().togglePlayer();
-                        goGameServer.setLastMoveResignation(true);
+                    if (playerColor == goGameServer.getGoGame().getCurrentPlayer()) {
+                        if (goGameServer.isLastMoveResignation()) {
+                            GoGame endGoGame = goGameServer.getGoGame();
+                            endGoGame.setGameEnded();
+                            EndGameData endGameData = new EndGameData(endGoGame);
+                            goGameServer.broadcastEndGameData(endGameData);
+                        }
+                        else {
+                            goGameServer.getGoGame().togglePlayer();
+                            goGameServer.setLastMoveResignation(true);
+                        }
                     }
                 }
                 if (receivedData instanceof SurrenderRequest) {
-                   if(playerColor == goGameServer.getGoGame().getCurrentPlayer()) {
-                       goGameServer.getGoGame().setGameEnded();
-                       goGameServer.broadcastSurrenderData(this);
-                       String kolor = playerColor == Stone.StoneColor.BLACK ? "czarnym" : "bialym";
-                       System.out.println("wysłane info o poddaniu sie przez gracza o kolorze " + kolor);
-                   }
+                    if (playerColor == goGameServer.getGoGame().getCurrentPlayer()) {
+                        goGameServer.getGoGame().setGameEnded();
+                        goGameServer.broadcastSurrenderData(this);
+                        String kolor = playerColor == Stone.StoneColor.BLACK ? "czarnym" : "bialym";
+                        System.out.println("wysłane info o poddaniu sie przez gracza o kolorze " + kolor);
+                    }
                 }
             }
         } catch (IOException | ClassNotFoundException e) {

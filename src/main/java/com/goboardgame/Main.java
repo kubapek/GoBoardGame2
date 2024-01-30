@@ -2,12 +2,14 @@ package com.goboardgame;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.*;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
@@ -17,7 +19,6 @@ import java.net.Socket;
 public class Main extends Application {
     private ObjectOutputStream toServer;
     private ObjectInputStream fromServer;
-    private GameBoard gameBoard;
 
     @Override
     public void start(Stage primaryStage) {
@@ -36,9 +37,7 @@ public class Main extends Application {
                 GameData initialGameData = (GameData) fromServer.readObject();
                 GoGame goGame = initialGameData.getGoGame();
 
-                Platform.runLater(() -> {
-                    createGameUI(primaryStage, goGame);
-                });
+                Platform.runLater(() -> createGameUI(primaryStage, goGame));
 
                 listenForUpdates(primaryStage);
             } catch (IOException | ClassNotFoundException e) {
@@ -52,11 +51,11 @@ public class Main extends Application {
             while (true) {
                 try {
                     Object receivedData = fromServer.readObject();
-                    if(receivedData instanceof WinnerInfo winnerInfo)
+                    if (receivedData instanceof WinnerInfo winnerInfo)
                         displayWinnerDialog(winnerInfo.getWinnerMessage());
-                    if(receivedData instanceof EndGameData endGameData)
+                    if (receivedData instanceof EndGameData endGameData)
                         displayPointsDialog(endGameData.getEndGoGame());
-                    if(receivedData instanceof GameData gameData) {
+                    if (receivedData instanceof GameData gameData) {
                         System.out.println(gameData);
                         GoGame goGame = gameData.getGoGame();
                         refreshGameUI(goGame, primaryStage);
@@ -71,7 +70,7 @@ public class Main extends Application {
 
 
     private void createGameUI(Stage primaryStage, GoGame goGame) {
-        gameBoard = new GameBoard(goGame, toServer, this);
+        GameBoard gameBoard = new GameBoard(goGame, toServer);
 
         VBox scoreBoard = new VBox(10);
         Label player1ScoreLabel = new Label("Czarne: " + goGame.getPlayer1Score());
@@ -103,7 +102,7 @@ public class Main extends Application {
         BorderPane root = new BorderPane();
         root.setCenter(gameBoard.createContent());
         root.setLeft(scoreBoard);
-        root.setBackground(new Background(new BackgroundFill(Color.BURLYWOOD,null,null)));
+        root.setBackground(new Background(new BackgroundFill(Color.BURLYWOOD, null, null)));
 
         Scene scene = new Scene(root, 500, 400);
         primaryStage.setScene(scene);
@@ -120,22 +119,27 @@ public class Main extends Application {
             alert.setTitle("Koniec gry");
             alert.setHeaderText(null);
             alert.setContentText(winnerMessage);
-            alert.setOnHidden(event -> {
-                Platform.exit();
-            });
+            alert.setOnHidden(event -> Platform.exit());
             alert.showAndWait();
         });
     }
 
-    private void displayPointsDialog(GoGame goGame){
+    private void displayPointsDialog(GoGame goGame) {
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Koniec gry");
             alert.setHeaderText(null);
-            alert.setContentText("Podsumowanie punktów zdobytych przez graczy: \n" + "Czarne: " + goGame.getPlayer1Score()+"\nBiałe: " + goGame.getPlayer2Score());
-            alert.setOnHidden(event -> {
-                Platform.exit();
-            });
+            String resultMessage;
+            if (goGame.getPlayer1Score() > goGame.getPlayer2Score())
+                resultMessage = "Czarne wygrywają!";
+            else if (goGame.getPlayer1Score() < goGame.getPlayer2Score())
+                resultMessage = "Białe wygrywają!";
+            else
+                resultMessage = "Remis!";
+            alert.setContentText("Podsumowanie punktów zdobytych przez graczy: \n"
+                    + "Czarne: " + goGame.getPlayer1Score() + "\n" +
+                    "Białe: " + goGame.getPlayer2Score() + "\n" + resultMessage);
+            alert.setOnHidden(event -> Platform.exit());
             alert.showAndWait();
         });
     }

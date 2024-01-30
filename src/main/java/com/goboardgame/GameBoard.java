@@ -10,15 +10,13 @@ import java.io.ObjectOutputStream;
 
 public class GameBoard extends Pane {
     public static final int TILE_SIZE = 40;
-    private GoGame goGame;
-    private ObjectOutputStream toServer;
-    private Main main;
+    private final GoGame goGame;
+    private final ObjectOutputStream toServer;
     private static final int BOARD_MARGIN = 20;
 
-    public GameBoard(GoGame goGame, ObjectOutputStream toServer, Main main) {
+    public GameBoard(GoGame goGame, ObjectOutputStream toServer) {
         this.goGame = goGame;
         this.toServer = toServer;
-        this.main = main;
     }
 
     public Pane createContent() {
@@ -45,16 +43,14 @@ public class GameBoard extends Pane {
     }
 
     public void drawGrid() {
-        getChildren().clear(); // Czyści obecne komponenty
+        getChildren().clear();
 
-        // Rysuje linie siatki
         for (int i = 0; i < goGame.getBoardSize(); i++) {
             Line hLine = new Line(BOARD_MARGIN, i * TILE_SIZE + BOARD_MARGIN, (goGame.getBoardSize() - 1) * TILE_SIZE + BOARD_MARGIN, i * TILE_SIZE + BOARD_MARGIN);
             Line vLine = new Line(i * TILE_SIZE + BOARD_MARGIN, BOARD_MARGIN, i * TILE_SIZE + BOARD_MARGIN, (goGame.getBoardSize() - 1) * TILE_SIZE + BOARD_MARGIN);
             getChildren().addAll(hLine, vLine);
         }
 
-        // Dodaje punkty interakcji
         for (int y = 0; y < goGame.getBoardSize(); y++) {
             for (int x = 0; x < goGame.getBoardSize(); x++) {
                 Circle interactionPoint = new Circle(TILE_SIZE / 2 - 2, Color.TRANSPARENT);
