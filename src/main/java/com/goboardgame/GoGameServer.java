@@ -14,7 +14,7 @@ public class GoGameServer {
     private boolean lastMoveResignation = false;
 
     public GoGameServer() {
-        this.goGame = new GoGame(19);
+        this.goGame = new GoGame(9);
     }
 
     public void startServer() {

@@ -111,7 +111,7 @@ public class Main extends Application {
         root.setBottom(poddanie);
         root.setBackground(new Background(new BackgroundFill(Color.BURLYWOOD,null,null)));
 
-        Scene scene = new Scene(root, 960, 760);
+        Scene scene = new Scene(root, 500, 400);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
