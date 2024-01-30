@@ -10,8 +10,6 @@ public class GoGame implements Serializable {
     private Stone[][] previousBoardBlack;
     private Stone[][] previousBoardWhite;
     private Stone.StoneColor currentPlayer;
-    private Set<Point> blackStones;
-    private Set<Point> whiteStones;
     private int playersCount = 0;
     private int player1Score;
     private int player2Score;
@@ -23,8 +21,6 @@ public class GoGame implements Serializable {
         this.previousBoardBlack = new Stone[boardSize][boardSize];
         this.previousBoardWhite = new Stone[boardSize][boardSize];
         this.currentPlayer = Stone.StoneColor.BLACK;
-        blackStones = new HashSet<>();
-        whiteStones = new HashSet<>();
     }
 
     public int getPlayer1Score() {
@@ -44,21 +40,14 @@ public class GoGame implements Serializable {
 
             if (color == Stone.StoneColor.BLACK) {
                 previousBoardBlack = deepCopyBoard(board);
-                blackStones.add(new Point(x, y));
             } else {
                 previousBoardWhite = deepCopyBoard(board);
-                whiteStones.add(new Point(x, y));
             }
 
             boolean isSuicidal = !hasLiberties(x, y);
 
             if (isSuicidal && !hasLiberties(x, y)) {
                 board[x][y] = null;
-                if (color == Stone.StoneColor.BLACK) {
-                    blackStones.remove(new Point(x, y));
-                } else {
-                    whiteStones.remove(new Point(x, y));
-                }
                 return false;
             }
 
@@ -69,17 +58,12 @@ public class GoGame implements Serializable {
     }
 
     public boolean isKo(int x, int y, Stone.StoneColor color) {
-        // Create a temporary copy of the current board and place the stone
         Stone[][] tempBoard = deepCopyBoard(this.board);
         tempBoard[x][y] = new Stone(color, x, y);
 
-        // Simulate removal of opponent's stones on the temporary board
         simulateRemovalOfStones(tempBoard, x, y, color);
 
-        // Get the appropriate previous board state
         Stone[][] previousBoard = (color == Stone.StoneColor.BLACK) ? previousBoardBlack : previousBoardWhite;
-
-        // Compare the temporary board with the previous board state
         return areBoardsEqual(tempBoard, previousBoard);
     }
 
@@ -137,6 +121,56 @@ public class GoGame implements Serializable {
         return false;
     }
 
+    public void countTerritory() {
+        boolean[][] visited = new boolean[boardSize][boardSize];
+        player1Score = 0;
+        player2Score = 0;
+
+        for (int x = 0; x < boardSize; x++) {
+            for (int y = 0; y < boardSize; y++) {
+                if (!visited[x][y] && board[x][y] == null) {
+                    Set<Point> territory = new HashSet<>();
+                    Set<Stone.StoneColor> boundaryColors = new HashSet<>();
+                    analyzeTerritory(x, y, visited, territory, boundaryColors);
+
+                    if (boundaryColors.size() == 1) { // Terytorium należy do jednego gracza
+                        Stone.StoneColor owner = boundaryColors.iterator().next();
+                        int territoryPoints = territory.size();
+                        if (owner == Stone.StoneColor.BLACK) {
+                            player1Score += territoryPoints;
+                        } else {
+                            player2Score += territoryPoints;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void analyzeTerritory(int x, int y, boolean[][] visited, Set<Point> territory, Set<Stone.StoneColor> boundaryColors) {
+        if (!isOnBoard(x, y) || visited[x][y]) {
+            return;
+        }
+
+        visited[x][y] = true;
+
+        if (board[x][y] == null) {
+            territory.add(new Point(x, y));
+            for (int[] direction : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
+                int adjacentX = x + direction[0];
+                int adjacentY = y + direction[1];
+                if (isOnBoard(adjacentX, adjacentY)) {
+                    if (board[adjacentX][adjacentY] == null) {
+                        analyzeTerritory(adjacentX, adjacentY, visited, territory, boundaryColors);
+                    } else {
+                        boundaryColors.add(board[adjacentX][adjacentY].getColor());
+                    }
+                }
+            }
+        }
+    }
+
+
     private boolean areBoardsEqual(Stone[][] board1, Stone[][] board2) {
         for (int i = 0; i < boardSize; i++) {
             for (int j = 0; j < boardSize; j++) {
@@ -177,10 +211,8 @@ public class GoGame implements Serializable {
             }
         }
         if (currentPlayer == Stone.StoneColor.BLACK) {
-            whiteStones.removeAll(capturedGroup);
             player1Score += capturedGroup.size();
         } else {
-            blackStones.removeAll(capturedGroup);
             player2Score += capturedGroup.size();
         }
     }
@@ -243,11 +275,6 @@ public class GoGame implements Serializable {
             int x = stone.getX();
             int y = stone.getY();
             board[x][y] = null;
-            if (currentPlayer == Stone.StoneColor.BLACK) {
-                blackStones.remove(stone);
-            } else {
-                whiteStones.remove(stone);
-            }
         }
     }
 
@@ -285,14 +312,6 @@ public class GoGame implements Serializable {
 
     public void incrementPlayersCount() {
         playersCount += 1;
-    }
-
-    public Set<Point> getBlackStones() {
-        return blackStones;
-    }
-
-    public Set<Point> getWhiteStones() {
-        return whiteStones;
     }
 
     public boolean isGameEnded() {
