@@ -67,7 +67,7 @@ public class GoGame implements Serializable {
         return areBoardsEqual(tempBoard, previousBoard);
     }
 
-    private void simulateRemovalOfStones(Stone[][] board, int x, int y, Stone.StoneColor color) {
+    void simulateRemovalOfStones(Stone[][] board, int x, int y, Stone.StoneColor color) {
         Stone.StoneColor opponentColor = (color == Stone.StoneColor.BLACK) ? Stone.StoneColor.WHITE : Stone.StoneColor.BLACK;
 
         for (int[] direction : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
@@ -106,7 +106,7 @@ public class GoGame implements Serializable {
         }
     }
 
-    private boolean hasLiberties(Stone[][] board, Set<Point> group) {
+    boolean hasLiberties(Stone[][] board, Set<Point> group) {
         for (Point stone : group) {
             int x = stone.getX();
             int y = stone.getY();
@@ -171,7 +171,7 @@ public class GoGame implements Serializable {
     }
 
 
-    private boolean areBoardsEqual(Stone[][] board1, Stone[][] board2) {
+    boolean areBoardsEqual(Stone[][] board1, Stone[][] board2) {
         for (int i = 0; i < boardSize; i++) {
             for (int j = 0; j < boardSize; j++) {
                 if (board1[i][j] != null && board2[i][j] != null) {
@@ -186,7 +186,7 @@ public class GoGame implements Serializable {
         return true;
     }
 
-    private Stone[][] deepCopyBoard(Stone[][] boardToCopy) {
+    Stone[][] deepCopyBoard(Stone[][] boardToCopy) {
         Stone[][] newBoard = new Stone[boardSize][boardSize];
         for (int i = 0; i < boardSize; i++) {
             for (int j = 0; j < boardSize; j++) {
@@ -217,7 +217,7 @@ public class GoGame implements Serializable {
         }
     }
 
-    private Set<Point> findGroup(int x, int y) {
+    Set<Point> findGroup(int x, int y) {
         Set<Point> group = new HashSet<>();
         Stone.StoneColor color = board[x][y].getColor();
         findGroupRecursive(x, y, color, group);
@@ -238,7 +238,7 @@ public class GoGame implements Serializable {
         }
     }
 
-    private boolean hasLiberties(int x, int y) {
+    boolean hasLiberties(int x, int y) {
         if (!isOnBoard(x, y) || board[x][y] == null) {
             return false;
         }

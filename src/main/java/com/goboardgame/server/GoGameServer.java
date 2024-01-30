@@ -16,8 +16,8 @@ import java.util.Set;
 
 public class GoGameServer {
     private static final int PORT = 8000;
-    private final Set<ClientHandler> clients = Collections.synchronizedSet(new HashSet<>());
-    private final GoGame goGame;
+    public Set<ClientHandler> clients = Collections.synchronizedSet(new HashSet<>());
+    public GoGame goGame;
     private boolean lastMoveResignation = false;
 
     public GoGameServer() {
@@ -119,7 +119,7 @@ public class GoGameServer {
         clients.remove(clientHandler);
     }
 
-    private void broadcastGameData(GameData gameData) {
+    public void broadcastGameData(GameData gameData) {
         for (ClientHandler client : clients) {
             try {
 //                System.out.println("Sending game data to client: " + client);
