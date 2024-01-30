@@ -1,5 +1,8 @@
-package com.goboardgame;
+package com.goboardgame.client;
 
+import com.goboardgame.GameBoard;
+import com.goboardgame.GoGame;
+import com.goboardgame.dto.*;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;

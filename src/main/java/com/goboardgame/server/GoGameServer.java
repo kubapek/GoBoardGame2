@@ -1,4 +1,11 @@
-package com.goboardgame;
+package com.goboardgame.server;
+
+import com.goboardgame.GoGame;
+import com.goboardgame.Stone;
+import com.goboardgame.dto.EndGameData;
+import com.goboardgame.dto.GameData;
+import com.goboardgame.dto.MoveData;
+import com.goboardgame.dto.WinnerInfo;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -10,7 +17,7 @@ import java.util.Set;
 public class GoGameServer {
     private static final int PORT = 8000;
     private final Set<ClientHandler> clients = Collections.synchronizedSet(new HashSet<>());
-    private GoGame goGame;
+    private final GoGame goGame;
     private boolean lastMoveResignation = false;
 
     public GoGameServer() {
@@ -84,9 +91,9 @@ public class GoGameServer {
 
     private void logGameState() {
         for (Stone[] stones : getGoGame().getBoard()) {
-            for(int i = 0; i < stones.length; i++) {
-                if (stones[i] != null)
-                    System.out.println(stones[i]);
+            for (Stone stone : stones) {
+                if (stone != null)
+                    System.out.println(stone);
             }
         }
     }

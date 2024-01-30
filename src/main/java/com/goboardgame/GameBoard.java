@@ -1,5 +1,6 @@
 package com.goboardgame;
 
+import com.goboardgame.dto.MoveData;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;

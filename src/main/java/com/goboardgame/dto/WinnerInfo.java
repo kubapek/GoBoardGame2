@@ -1,9 +1,9 @@
-package com.goboardgame;
+package com.goboardgame.dto;
 
 import java.io.Serializable;
 
 public class WinnerInfo implements Serializable {
-    private String winnerMessage;
+    private final String winnerMessage;
 
     public WinnerInfo(String winnerMessage) {
         this.winnerMessage = winnerMessage;

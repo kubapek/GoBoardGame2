@@ -1,4 +1,8 @@
-package com.goboardgame;
+package com.goboardgame.server;
+
+import com.goboardgame.GoGame;
+import com.goboardgame.Stone;
+import com.goboardgame.dto.*;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;

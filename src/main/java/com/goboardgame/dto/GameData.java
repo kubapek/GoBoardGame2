@@ -1,9 +1,11 @@
-package com.goboardgame;
+package com.goboardgame.dto;
+
+import com.goboardgame.GoGame;
 
 import java.io.Serializable;
 
 public class GameData implements Serializable {
-    private GoGame goGame;
+    private final GoGame goGame;
 
     public GameData(GoGame goGame) {
         this.goGame = goGame;

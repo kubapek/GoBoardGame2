@@ -1,10 +1,10 @@
-package com.goboardgame;
+package com.goboardgame.dto;
 
 import java.io.Serializable;
 
 public class MoveData implements Serializable {
-    private int x;
-    private int y;
+    private final int x;
+    private final int y;
 
     public MoveData(int x, int y) {
         this.x = x;

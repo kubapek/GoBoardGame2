@@ -1,4 +1,4 @@
-package com.goboardgame;
+package com.goboardgame.dto;
 
 import java.io.Serializable;
 
