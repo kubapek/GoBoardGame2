@@ -25,11 +25,12 @@ public class GoGameServer {
                 try {
                     Socket clientSocket = serverSocket.accept();
                     System.out.println("New client connected: " + clientSocket);
+                    if(!goGame.isGameEnded()) {
+                        ClientHandler clientHandler = new ClientHandler(clientSocket, this);
+                        clients.add(clientHandler);
 
-                    ClientHandler clientHandler = new ClientHandler(clientSocket, this);
-                    clients.add(clientHandler);
-
-                    new Thread(clientHandler).start();
+                        new Thread(clientHandler).start();
+                    }
                 } catch (IOException e) {
                     System.out.println("Error connecting to a client: " + e.getMessage());
                 }
@@ -50,7 +51,7 @@ public class GoGameServer {
                 System.out.println(goGame);
                 // Dodatkowe logowanie stanu gry
                 logGameState();
-
+                goGame.countTerritory();
                 GameData updatedGameData = new GameData(goGame);
                 broadcastGameData(updatedGameData);
                 setLastMoveResignation(false);
